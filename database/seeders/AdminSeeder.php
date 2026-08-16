@@ -20,5 +20,14 @@ class AdminSeeder extends Seeder
                 'role' => 'admin',
             ],
         );
+
+        User::updateOrCreate(
+            ['email' => 'staff@cvadz.com'],
+            [
+                'name' => 'Staff CV Adzra',
+                'password' => 'staff123',
+                'role' => 'staff',
+            ],
+        );
     }
 }

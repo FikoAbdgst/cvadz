@@ -45,7 +45,7 @@ class SalesController extends Controller
 
             $customers = $query->withCount('orders')->orderBy('name')->paginate(15)->withQueryString();
         } elseif ($tab === 'pemesanan') {
-            $query = Order::with(['customer', 'product'])
+            $query = Order::with(['customer', 'product', 'service'])
                 ->withCount('transactions')
                 ->withSum('transactions', 'amount');
 
@@ -60,7 +60,7 @@ class SalesController extends Controller
             $orders = $query->latest()->paginate(15)->withQueryString();
             $activeCustomer = $customerId ? Customer::find($customerId) : null;
         } else {
-            $query = Transaction::with('order.customer');
+            $query = Transaction::with('order.customer', 'order.product', 'order.service');
 
             if ($orderId) {
                 $query->where('order_id', $orderId);
@@ -71,7 +71,7 @@ class SalesController extends Controller
             }
 
             $transactions = $query->latest('transaction_date')->paginate(15)->withQueryString();
-            $activeOrder = $orderId ? Order::with('customer', 'product')->find($orderId) : null;
+            $activeOrder = $orderId ? Order::with('customer', 'product', 'service')->find($orderId) : null;
         }
 
         return view('admin.sales.index', [

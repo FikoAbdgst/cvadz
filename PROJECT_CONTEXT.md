@@ -77,14 +77,15 @@ Aturan pakai:
 ## 4. Skema Database (MVP)
 
 ```
-users                     -- akun admin (dibuat manual, tanpa starter kit)
-├─ id, name, email, password (hashed), role (default: admin), timestamps
+users                     -- akun admin/staff (dibuat manual, tanpa starter kit)
+├─ id, name, email, password (hashed), role (enum string: admin | staff, default: admin), timestamps
 
-categories                -- kategori mesin
-├─ id, name, slug, timestamps
+categories                -- kategori produk (type=produk) & layanan (type=layanan)
+├─ id, name, slug, type (string: produk | layanan, default produk), timestamps
 
-products                  -- produk mesin
+products                  -- produk mesin & sparepart
 ├─ id, category_id (FK), name, slug, description, price (nullable),
+│  warranty_months (nullable), stock (unsigned integer, default 0),
 │  is_featured (boolean, default false), timestamps
 
 product_specifications     -- spesifikasi teknis per produk (key-value, banyak baris per produk)
@@ -99,13 +100,40 @@ product_videos              -- video produk (link YouTube/embed atau file upload
 customers                  -- data pelanggan (diinput admin saat ada pesanan masuk dari WA)
 ├─ id, name, phone, email (nullable), address (nullable), timestamps
 
-orders                     -- pemesanan
-├─ id, customer_id (FK), product_id (FK), quantity, notes (nullable),
-│  status (enum: pending, diproses, selesai, batal), timestamps
+services                   -- layanan jasa (Custom Mesin, Service, Instalasi Listrik, Panel)
+├─ id, category_id (FK categories type=layanan, nullable), name, slug (unique),
+│  description (nullable), price (nullable), is_featured (boolean, default false), timestamps
+
+suppliers                  -- pemasok material/suku cadang
+├─ id, name, contact_name (nullable), phone (nullable), email (nullable), address (nullable), timestamps
+
+orders                     -- pemesanan (item: produk ATAU layanan)
+├─ id, customer_id (FK), product_id (FK, nullable), service_id (FK services, nullable),
+│  quantity, notes (nullable),
+│  status (enum: pending, diproses, selesai, batal),
+│  admin_user_id (FK users, nullable), total (decimal, nullable), warranty_end_date (date, nullable),
+│  timestamps
 
 transactions                -- transaksi penjualan
-├─ id, order_id (FK), amount, transaction_date, status (enum: lunas, belum_lunas),
-│  timestamps
+├─ id, order_id (FK), staff_user_id (FK users, nullable), amount,
+│  payment_type (string, nullable: transfer/tunai/lainnya), transaction_date,
+│  status (enum: lunas, belum_lunas), timestamps
+
+cashbooks                   -- buku kas (pemasukan/pengeluaran)
+├─ id, type (enum: pemasukan, pengeluaran), amount, description (nullable),
+│  transaction_date, user_id (FK users, nullable), timestamps
+
+workers                     -- pekerja / tenaga produksi
+├─ id, name, position (nullable), phone (nullable), salary (decimal, nullable, upah harian), timestamps
+
+attendances                 -- absensi pekerja
+├─ id, worker_id (FK), date, check_in (time, nullable), check_out (time, nullable),
+│  timestamps, unique(worker_id, date)
+
+payrolls                    -- penggajian (draft → approved; approve otomatis mencatat cashbook pengeluaran)
+├─ id, worker_id (FK), period (string Y-m), total_days, salary_amount (decimal),
+│  status (string: draft | approved), approved_by (FK users, nullable), approved_at (timestamp, nullable),
+│  timestamps, unique(worker_id, period)
 ```
 
 > Laporan penjualan **tidak perlu tabel terpisah** — cukup query agregasi dari tabel `transactions` (filter per tanggal/bulan, total pendapatan, jumlah transaksi).
@@ -117,26 +145,41 @@ transactions                -- transaksi penjualan
 Fokus dulu ke kerangka aplikasi yang berjalan penuh (end-to-end), fitur-fitur tambahan bisa menyusul.
 
 ### Sisi Publik (Pelanggan)
-- [ ] Landing page (hero, ringkasan perusahaan, produk unggulan, CTA)
-- [ ] Halaman katalog produk (list + filter kategori + search sederhana)
-- [ ] Halaman detail produk (deskripsi, spesifikasi, galeri gambar, video, tombol WhatsApp dengan pesan otomatis berisi nama produk)
-- [ ] Halaman tentang perusahaan (opsional, boleh statis)
+- [x] Landing page (hero, ringkasan perusahaan, produk unggulan, CTA)
+- [x] Halaman katalog produk (list + filter kategori + search sederhana)
+- [x] Halaman detail produk (deskripsi, spesifikasi, galeri gambar, video, tombol WhatsApp dengan pesan otomatis berisi nama produk)
+- [x] Halaman tentang perusahaan
+- [x] Halaman katalog layanan (/layanan, CTA WhatsApp per layanan)
 
-### Sisi Admin (setelah login via Breeze)
-- [ ] Dashboard ringkas (total produk, total pemesanan, total transaksi bulan ini)
-- [ ] CRUD Kategori
-- [ ] CRUD Produk (termasuk upload gambar & tambah spesifikasi & video)
-- [ ] Kelola Data Pelanggan (list, tambah manual, edit)
-- [ ] Kelola Pemesanan (list, ubah status: pending → diproses → selesai/batal)
-- [ ] Kelola Transaksi (input transaksi terkait order, ubah status lunas/belum lunas)
-- [ ] Laporan Penjualan sederhana (filter tanggal, total pendapatan, export ke belakangan bisa ditambah PDF/Excel)
+### Sisi Admin (auth manual, layout sidebar + topbar)
+- [x] Dashboard ringkas (card Total Penjualan, Stok Kritis, Saldo Kas Saat Ini + total produk/kategori/pelanggan/pemesanan)
+- [x] CRUD Kategori (Produk & Layanan via tipe)
+- [x] CRUD Produk (upload gambar, spesifikasi, video, lama garansi, stok)
+- [x] Kelola Data Pelanggan
+- [x] Kelola Pemesanan (buat pesanan: pilih pelanggan + produk/layanan + total harga + selesai garansi; ubah status)
+- [x] Kelola Transaksi (tab Pelanggan/Pemesanan/Transaksi di /admin/transaksi)
+- [x] Cek Garansi (search nama pelanggan/no. pesanan → status Aktif/Kedaluwarsa dari warranty_end_date)
+- [x] Buku Kas Utama (filter jenis + rentang tanggal, ringkasan pemasukan/pengeluaran/saldo)
+- [x] Laporan multi-tab (Penjualan | Stok | Arus Kas | Penggajian, tabel Tailwind)
+- [x] CRUD Supplier
+- [x] Kelola Akun (tambah/edit admin & staff)
+- [x] Rekap Absensi (read-only, filter bulan)
+- [x] Penggajian (generate dari data absensi × upah harian, approve → otomatis catat cashbook pengeluaran)
+
+### Sisi Staff Operasional (role=staff, middleware `role:staff`, prefix `/staff`)
+- [x] Dashboard Operasional (jumlah pesanan pending/diproses, hadir hari ini, stok kritis, transaksi terbaru)
+- [x] Kasir: input pembayaran (DP/Termin/Lunas, tunai/transfer/lainnya) → otomatis catat Buku Kas pemasukan; status Lunas otomatis menyelesaikan pesanan; faktur/kwitansi printable (`#TRX-{id}`)
+- [x] Kasir: catat pengeluaran operasional → Buku Kas pengeluaran
+- [x] Operasional: update progress pesanan (status + catatan) & kelola stok (tambah/kurang, tidak bisa minus)
+- [x] HR Harian: CRUD data pekerja (upah harian) & input absensi harian (jam masuk/keluar, tolak duplikat, tolak jam keluar < jam masuk)
 
 ### Di luar MVP (nanti menyusul, jangan dikerjakan dulu)
 - Export laporan ke PDF/Excel
-- Multi-admin dengan role & permission granular
+- Role & permission granular di atas admin/staff
 - Notifikasi email
 - Rating/review produk
 - Multi-bahasa
+- CRUD admin untuk services (katalog layanan saat ini masih read-only via seeder)
 
 ---
 
@@ -145,8 +188,9 @@ Fokus dulu ke kerangka aplikasi yang berjalan penuh (end-to-end), fitur-fitur ta
 ```
 # Public
 GET  /                      -> HomeController@index
-GET  /produk                -> ProductController@index (katalog + filter)
+GET  /produk                -> ProductController@index (katalog mesin & sparepart + filter)
 GET  /produk/{slug}         -> ProductController@show (detail)
+GET  /layanan               -> ServiceController@index (katalog layanan + CTA WhatsApp)
 
 # Auth (dibuat manual)
 GET  /login                 -> AuthController@showLoginForm
@@ -154,14 +198,40 @@ POST /login                 -> AuthController@login
 POST /logout                -> AuthController@logout
 (tanpa halaman register publik — akun admin dibuat lewat seeder/tinker, bukan self-register)
 
-# Admin (middleware: auth)
+# Admin (middleware: auth + role:admin)
 GET  /admin/dashboard       -> Admin\DashboardController@index
-Resource: /admin/kategori   -> Admin\CategoryController
+Resource: /admin/kategori   -> Admin\CategoryController (tab type=produk|layanan)
 Resource: /admin/produk     -> Admin\ProductController
 Resource: /admin/pelanggan  -> Admin\CustomerController
 Resource: /admin/pemesanan  -> Admin\OrderController
 Resource: /admin/transaksi  -> Admin\TransactionController
-GET  /admin/laporan         -> Admin\ReportController@index
+GET  /admin/laporan         -> Admin\ReportController@index (tab=penjualan|stok|kas|penggajian)
+GET  /admin/garansi         -> Admin\WarrantyController@index (cek garansi, ?q=nama/id)
+GET  /admin/kas             -> Admin\CashbookController@index (buku kas, ?type=&from=&to=)
+Resource: /admin/supplier   -> Admin\SupplierController
+Resource: /admin/akun       -> Admin\UserController (names: users, param: user)
+GET  /admin/absensi         -> Admin\AttendanceController@index (read-only, ?month=Y-m)
+GET  /admin/penggajian      -> Admin\PayrollController@index (?period=Y-m)
+POST /admin/penggajian/generate -> Admin\PayrollController@generate
+POST /admin/penggajian/{payroll}/approve -> Admin\PayrollController@approve (auto cashbook)
+DELETE /admin/penggajian/{payroll} -> Admin\PayrollController@destroy (hanya draft)
+
+# Staff Operasional (middleware: auth + role:staff)
+GET  /staff/dashboard       -> Staff\DashboardController@index
+GET  /staff/transaksi       -> Staff\TransactionController@index (daftar faktur, ?order_id=&status=)
+GET  /staff/transaksi/create -> Staff\TransactionController@create (?order_id= preselect)
+POST /staff/transaksi       -> Staff\TransactionController@store (transaksi + cashbook pemasukan; lunas -> order selesai)
+GET  /staff/transaksi/{transaksi}/invoice -> Staff\TransactionController@invoice (kwitansi, print:hidden)
+GET  /staff/kas/create      -> Staff\CashbookController@create
+POST /staff/kas             -> Staff\CashbookController@store (pengeluaran)
+GET  /staff/pemesanan       -> Staff\OrderController@index (?status=&q=)
+GET  /staff/pemesanan/{pemesanan}/edit -> Staff\OrderController@edit
+PUT  /staff/pemesanan/{pemesanan}      -> Staff\OrderController@update (status + notes)
+GET  /staff/stok            -> Staff\StockController@index (?q=)
+POST /staff/stok            -> Staff\StockController@update (tambah/kurang)
+Resource: /staff/pekerja    -> Staff\WorkerController (names: workers, param: pekerja)
+GET  /staff/absensi         -> Staff\AttendanceController@index (?date=)
+POST /staff/absensi         -> Staff\AttendanceController@store (tolak duplikat & check_out < check_in)
 ```
 
 ---
@@ -184,6 +254,7 @@ GET  /admin/laporan         -> Admin\ReportController@index
   - Migration `users` (pakai bawaan Laravel, cukup tambah kolom `role` bila perlu).
   - `AuthController` dengan method `showLoginForm`, `login` (pakai `Auth::attempt`), `logout`.
   - Middleware `auth` bawaan Laravel untuk proteksi semua route `/admin/*`.
+  - **Role middleware**: `App\Http\Middleware\EnsureUserHasRole` (alias `role`, didaftarkan di `bootstrap/app.php`). Grup `/admin/*` memakai `role:admin`, grup `/staff/*` memakai `role:staff`. Jika role salah, staff diarahkan ke `staff.dashboard`, lainnya ke `admin.dashboard` (dengan flash error). Login diarahkan ke dashboard sesuai role.
   - Buat admin awal lewat `database/seeders/AdminSeeder.php`, bukan lewat form register publik.
 - Setelah scaffolding dasar jalan (migration, seeder, admin bisa login), baru bangun fitur MVP satu per satu sesuai urutan di Bagian 5.
 - Buat migration dan model dulu sebelum controller & view.

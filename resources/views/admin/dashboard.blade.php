@@ -32,6 +32,40 @@
         </div>
     </div>
 
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="plate rounded bg-white p-6">
+            <span class="plate-corner-bl"></span>
+            <span class="plate-corner-br"></span>
+            <p class="font-mono text-xs font-semibold uppercase tracking-widest text-graphite-500">Total Penjualan</p>
+            <p class="mt-2 font-mono text-3xl font-bold text-steel-700">
+                Rp {{ number_format((float) $totalSales, 0, ',', '.') }}
+            </p>
+            <p class="mt-1 font-mono text-xs text-graphite-500">Akumulasi transaksi lunas</p>
+        </div>
+        <div class="plate rounded bg-white p-6">
+            <span class="plate-corner-bl"></span>
+            <span class="plate-corner-br"></span>
+            <p class="font-mono text-xs font-semibold uppercase tracking-widest text-graphite-500">Stok Kritis</p>
+            <p class="mt-2 font-mono text-3xl font-bold {{ $criticalStock > 0 ? 'text-amber-600' : 'text-steel-700' }}">{{ $criticalStock }}</p>
+            <p class="mt-1 font-mono text-xs text-graphite-500">Produk dengan stok ≤ {{ \App\Models\Product::LOW_STOCK_THRESHOLD }}</p>
+        </div>
+        <div class="plate rounded bg-white p-6 sm:col-span-2 lg:col-span-1">
+            <span class="plate-corner-bl"></span>
+            <span class="plate-corner-br"></span>
+            <p class="font-mono text-xs font-semibold uppercase tracking-widest text-graphite-500">Saldo Kas Saat Ini</p>
+            <p class="mt-2 font-mono text-3xl font-bold text-steel-700">
+                Rp {{ number_format((float) $cashBalance, 0, ',', '.') }}
+            </p>
+            <p class="mt-1 font-mono text-xs text-graphite-500">
+                @if ($lastCashEntry)
+                    Transaksi terakhir {{ $lastCashEntry->transaction_date->format('d M Y') }}
+                @else
+                    Belum ada transaksi kas
+                @endif
+            </p>
+        </div>
+    </div>
+
     <div class="mt-6 grid gap-6 lg:grid-cols-3">
         <div class="plate rounded bg-white p-6 lg:col-span-2">
             <span class="plate-corner-bl"></span>
@@ -76,7 +110,7 @@
                     @forelse ($recentOrders as $order)
                         <tr class="border-b border-line-200/60">
                             <td class="px-6 py-3 font-medium text-graphite-900">{{ $order->customer?->name }}</td>
-                            <td class="px-6 py-3 text-graphite-500">{{ $order->product?->name }}</td>
+                            <td class="px-6 py-3 text-graphite-500">{{ $order->itemLabel() }}</td>
                             <td class="px-6 py-3 text-graphite-500">{{ $order->quantity }}</td>
                             <td class="px-6 py-3">
                                 <span class="rounded-full px-3 py-1 text-xs font-medium

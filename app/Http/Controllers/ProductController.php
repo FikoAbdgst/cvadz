@@ -27,7 +27,7 @@ class ProductController extends Controller
 
         $products = $query->latest()->paginate(9)->withQueryString();
 
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::where('type', 'produk')->orderBy('name')->get();
 
         return view('products.index', [
             'products' => $products,

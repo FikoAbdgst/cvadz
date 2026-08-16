@@ -17,6 +17,8 @@
                 class="font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 transition hover:text-white">Beranda</a>
             <a href="{{ route('products.index') }}"
                 class="font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 transition hover:text-white">Produk</a>
+            <a href="{{ route('services.index') }}"
+                class="font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 transition hover:text-white">Layanan</a>
             <a href="{{ route('about') }}"
                 class="font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 transition hover:text-white">Tentang
                 Kami</a>
@@ -38,6 +40,8 @@
             class="block py-2 font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 hover:text-white">Beranda</a>
         <a href="{{ route('products.index') }}"
             class="block py-2 font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 hover:text-white">Produk</a>
+        <a href="{{ route('services.index') }}"
+            class="block py-2 font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 hover:text-white">Layanan</a>
         <a href="{{ route('about') }}"
             class="block py-2 font-mono text-xs font-semibold uppercase tracking-widest text-steel-400 hover:text-white">Tentang
             Kami</a>

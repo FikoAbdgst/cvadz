@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class OrderRequest extends FormRequest
 {
@@ -26,11 +27,26 @@ class OrderRequest extends FormRequest
     {
         return [
             'customer_id' => ['required', 'exists:customers,id'],
-            'product_id' => ['required', 'exists:products,id'],
+            'product_id' => ['nullable', 'exists:products,id'],
+            'service_id' => ['nullable', 'exists:services,id'],
             'quantity' => ['required', 'integer', 'min:1'],
+            'total' => ['nullable', 'numeric', 'min:0'],
+            'warranty_end_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:500'],
             'status' => ['required', Rule::enum(OrderStatus::class)],
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($validator) {
+            if (! $this->filled('product_id') && ! $this->filled('service_id')) {
+                $validator->errors()->add('item', 'Pilih produk atau layanan.');
+            }
+        });
     }
 
     /**
@@ -42,9 +58,9 @@ class OrderRequest extends FormRequest
     {
         return [
             'customer_id.required' => 'Pelanggan wajib dipilih.',
-            'product_id.required' => 'Produk wajib dipilih.',
             'quantity.required' => 'Jumlah wajib diisi.',
             'quantity.min' => 'Jumlah minimal 1.',
+            'warranty_end_date.date' => 'Tanggal selesai garansi tidak valid.',
         ];
     }
 }

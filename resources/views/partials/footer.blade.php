@@ -26,7 +26,8 @@
                 <h3 class="label-mono text-steel-400">Navigasi</h3>
                 <ul class="mt-4 space-y-2 text-sm text-steel-400">
                     <li><a href="{{ route('home') }}" class="transition hover:text-white">Beranda</a></li>
-                    <li><a href="{{ route('products.index') }}" class="transition hover:text-white">Produk</a></li>
+                    <li><a href="{{ route('products.index') }}" class="transition hover:text-white">Produk &amp; Sparepart</a></li>
+                    <li><a href="{{ route('services.index') }}" class="transition hover:text-white">Layanan</a></li>
                     <li><a href="{{ route('login') }}" class="transition hover:text-white">Area Admin</a></li>
                 </ul>
             </div>

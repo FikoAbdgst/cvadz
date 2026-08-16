@@ -32,6 +32,7 @@
                         <th class="px-6 py-3">Produk</th>
                         <th class="px-6 py-3">Kategori</th>
                         <th class="px-6 py-3">Harga</th>
+                        <th class="px-6 py-3">Stok</th>
                         <th class="px-6 py-3">Unggulan</th>
                         <th class="px-6 py-3 text-right">Aksi</th>
                     </tr>
@@ -51,6 +52,12 @@
                             </td>
                             <td class="px-6 py-3 text-graphite-500">{{ $product->category?->name }}</td>
                             <td class="px-6 py-3 text-graphite-500">{{ $product->price ? 'Rp '.number_format((float) $product->price, 0, ',', '.') : '—' }}</td>
+                            <td class="px-6 py-3">
+                                <span class="font-mono font-medium
+                                    {{ $product->stockStatus() === 'aman' ? 'text-graphite-900' : ($product->stockStatus() === 'kritis' ? 'text-amber-600' : 'text-red-600') }}">
+                                    {{ $product->stock }}
+                                </span>
+                            </td>
                             <td class="px-6 py-3">
                                 @if ($product->is_featured)
                                     <span class="rounded-full bg-amber-600/15 px-3 py-1 text-xs font-medium text-amber-700">Unggulan</span>
@@ -72,7 +79,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-graphite-500">Belum ada produk.</td>
+                            <td colspan="6" class="px-6 py-8 text-center text-graphite-500">Belum ada produk.</td>
                         </tr>
                     @endforelse
                 </tbody>

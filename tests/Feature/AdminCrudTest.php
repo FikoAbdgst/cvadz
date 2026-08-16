@@ -42,8 +42,18 @@ class AdminCrudTest extends TestCase
         $this->get(route('admin.sales.index', ['tab' => 'transaksi']))->assertOk();
         $this->get(route('admin.customers.create'))->assertOk();
         $this->get(route('admin.orders.create'))->assertOk();
-        $this->get(route('admin.transactions.create'))->assertOk();
         $this->get(route('admin.reports.index'))->assertOk();
+        $this->get(route('admin.suppliers.index'))->assertOk();
+        $this->get(route('admin.suppliers.create'))->assertOk();
+        $this->get(route('admin.users.index'))->assertOk();
+        $this->get(route('admin.users.create'))->assertOk();
+        $this->get(route('admin.attendances.index'))->assertOk();
+        $this->get(route('admin.payrolls.index'))->assertOk();
+        $this->get(route('admin.warranty.index'))->assertOk();
+        $this->get(route('admin.cashbooks.index'))->assertOk();
+        $this->get(route('admin.reports.index', ['tab' => 'stok']))->assertOk();
+        $this->get(route('admin.reports.index', ['tab' => 'kas']))->assertOk();
+        $this->get(route('admin.reports.index', ['tab' => 'penggajian']))->assertOk();
     }
 
     public function test_admin_can_create_category(): void
@@ -52,9 +62,10 @@ class AdminCrudTest extends TestCase
 
         $this->post(route('admin.categories.store'), [
             'name' => 'Rotary Dryer',
-        ])->assertRedirect(route('admin.categories.index'));
+            'type' => 'produk',
+        ])->assertRedirect(route('admin.categories.index', ['type' => 'produk']));
 
-        $this->assertDatabaseHas('categories', ['slug' => 'rotary-dryer']);
+        $this->assertDatabaseHas('categories', ['slug' => 'rotary-dryer', 'type' => 'produk']);
     }
 
     public function test_admin_can_create_product_with_images_specs_and_videos(): void
@@ -103,19 +114,21 @@ class AdminCrudTest extends TestCase
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'diproses']);
     }
 
-    public function test_admin_can_create_transaction(): void
+    public function test_admin_transactions_tab_is_monitoring_only(): void
     {
         $this->actingAs($this->admin());
         $order = Order::factory()->create();
-
-        $this->post(route('admin.transactions.store'), [
+        Transaction::factory()->create([
             'order_id' => $order->id,
-            'amount' => 1000000,
+            'amount' => 5000000,
             'transaction_date' => now()->toDateString(),
-            'status' => TransactionStatus::Lunas->value,
-        ])->assertRedirect(route('admin.sales.index', ['tab' => 'transaksi']));
+            'status' => TransactionStatus::Lunas,
+        ]);
 
-        $this->assertDatabaseHas('transactions', ['order_id' => $order->id, 'status' => 'lunas']);
+        $this->get(route('admin.sales.index', ['tab' => 'transaksi']))
+            ->assertOk()
+            ->assertSee($order->customer->name)
+            ->assertDontSee('Buat Transaksi');
     }
 
     public function test_report_shows_totals(): void

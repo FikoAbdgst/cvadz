@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['order_id', 'amount', 'transaction_date', 'status'])]
+#[Fillable(['order_id', 'staff_user_id', 'amount', 'payment_type', 'transaction_date', 'status'])]
 class Transaction extends Model
 {
     /** @use HasFactory<TransactionFactory> */
@@ -32,5 +32,13 @@ class Transaction extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * The staff user who recorded this transaction.
+     */
+    public function staffUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'staff_user_id');
     }
 }

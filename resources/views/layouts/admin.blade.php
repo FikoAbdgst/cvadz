@@ -12,22 +12,25 @@
 </head>
 <body class="min-h-screen bg-paper-100 font-body text-graphite-900 antialiased">
     <div class="flex min-h-screen">
-        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 -translate-x-full transform bg-steel-900 text-white transition-transform duration-200 lg:static lg:translate-x-0">
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 -translate-x-full transform bg-steel-900 text-white transition-transform duration-200 print:hidden lg:static lg:translate-x-0">
             <div class="flex h-16 items-center gap-3 border-b border-white/10 px-5">
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center">
                     <img src="{{ asset('logo.png') }}" alt="Logo CV Adzra Engineering" class="h-full w-full object-contain">
                 </span>
                 <div>
                     <p class="font-display text-sm font-bold leading-tight">CV Adzra Engineering</p>
-                    <p class="label-mono text-steel-400">Panel Admin</p>
+                    <p class="label-mono text-steel-400">{{ auth()->user()->role === 'admin' ? 'Panel Admin' : 'Panel Staff' }}</p>
                 </div>
             </div>
 
-            <nav class="space-y-1 p-4">
+            @if (auth()->user()->role === 'admin')
+            <nav class="space-y-1 overflow-y-auto p-4">
                 <a href="{{ route('admin.dashboard') }}"
                    class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.dashboard') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
                     Dashboard
                 </a>
+
+                <p class="px-4 pt-4 pb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-steel-400/60">Master Data</p>
                 <a href="{{ route('admin.categories.index') }}"
                    class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.categories.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
                     Kategori
@@ -36,21 +39,91 @@
                    class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.products.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
                     Produk
                 </a>
+                <a href="{{ route('admin.suppliers.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.suppliers.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Supplier
+                </a>
+
+                <p class="px-4 pt-4 pb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-steel-400/60">Penjualan</p>
                 <a href="{{ route('admin.sales.index') }}"
-                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.sales.*') || request()->routeIs('admin.customers.*') || request()->routeIs('admin.orders.*') || request()->routeIs('admin.transactions.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.sales.*') || request()->routeIs('admin.customers.*') || request()->routeIs('admin.orders.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
                     Transaksi
                 </a>
                 <a href="{{ route('admin.reports.index') }}"
                    class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.reports.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
-                    Laporan Penjualan
+                    Laporan
+                </a>
+                <a href="{{ route('admin.warranty.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.warranty.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Cek Garansi
+                </a>
+
+                <p class="px-4 pt-4 pb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-steel-400/60">HR & Keuangan</p>
+                <a href="{{ route('admin.cashbooks.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.cashbooks.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Buku Kas
+                </a>
+                <a href="{{ route('admin.users.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.users.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Kelola Akun
+                </a>
+                <a href="{{ route('admin.attendances.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.attendances.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Rekap Absensi
+                </a>
+                <a href="{{ route('admin.payrolls.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('admin.payrolls.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Penggajian
                 </a>
             </nav>
+            @else
+            <nav class="space-y-1 overflow-y-auto p-4">
+                <a href="{{ route('staff.dashboard') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.dashboard') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Dashboard Operasional
+                </a>
+
+                <p class="px-4 pt-4 pb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-steel-400/60">Kasir</p>
+                <a href="{{ route('staff.transactions.create') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.transactions.create') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Proses Pesanan
+                </a>
+                <a href="{{ route('staff.transactions.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.transactions.index') || request()->routeIs('staff.transactions.invoice') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Daftar Transaksi
+                </a>
+                <a href="{{ route('staff.cashbooks.create') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.cashbooks.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Pengeluaran
+                </a>
+
+                <p class="px-4 pt-4 pb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-steel-400/60">Operasional</p>
+                <a href="{{ route('staff.orders.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.orders.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Progress Pemesanan
+                </a>
+                <a href="{{ route('staff.stock.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.stock.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Kelola Stok
+                </a>
+
+                <p class="px-4 pt-4 pb-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-steel-400/60">HR Harian</p>
+                <a href="{{ route('staff.workers.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.workers.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Data Pekerja
+                </a>
+                <a href="{{ route('staff.attendances.index') }}"
+                   class="flex items-center gap-3 rounded px-4 py-2.5 font-mono text-xs font-semibold uppercase tracking-widest transition {{ request()->routeIs('staff.attendances.*') ? 'bg-amber-600 text-white' : 'text-steel-400 hover:bg-steel-700 hover:text-white' }}">
+                    Absensi Harian
+                </a>
+            </nav>
+            @endif
         </aside>
 
-        <div id="sidebar-overlay" class="fixed inset-0 z-30 hidden bg-black/40 lg:hidden"></div>
+        <div id="sidebar-overlay" class="fixed inset-0 z-30 hidden bg-black/40 print:hidden lg:hidden"></div>
 
         <div class="flex min-w-0 flex-1 flex-col">
-            <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line-200 bg-white px-4 sm:px-6">
+            <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line-200 bg-white px-4 print:hidden sm:px-6">
                 <div class="flex items-center gap-3">
                     <button type="button" id="sidebar-toggle" class="rounded border border-line-200 p-2 text-graphite-500 lg:hidden">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>

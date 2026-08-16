@@ -35,6 +35,8 @@ class ProductRequest extends FormRequest
             ],
             'description' => ['nullable', 'string'],
             'price' => ['nullable', 'numeric', 'min:0'],
+            'warranty_months' => ['nullable', 'integer', 'min:0', 'max:240'],
+            'stock' => ['nullable', 'integer', 'min:0'],
             'is_featured' => ['boolean'],
 
             'images' => ['nullable', 'array'],

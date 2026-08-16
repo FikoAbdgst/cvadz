@@ -128,8 +128,9 @@
                     <thead>
                         <tr class="border-b border-line-200 text-xs uppercase tracking-wider text-graphite-500">
                             <th class="px-6 py-3">Pelanggan</th>
-                            <th class="px-6 py-3">Produk</th>
+                            <th class="px-6 py-3">Produk / Layanan</th>
                             <th class="px-6 py-3">Qty</th>
+                            <th class="px-6 py-3">Total</th>
                             <th class="px-6 py-3">Tanggal</th>
                             <th class="px-6 py-3">Transaksi</th>
                             <th class="px-6 py-3">Status</th>
@@ -140,8 +141,9 @@
                         @forelse ($orders as $order)
                             <tr class="border-b border-line-200/60">
                                 <td class="px-6 py-3 font-medium text-graphite-900">{{ $order->customer?->name }}</td>
-                                <td class="px-6 py-3 text-graphite-500">{{ $order->product?->name }}</td>
+                                <td class="px-6 py-3 text-graphite-500">{{ $order->itemLabel() }}</td>
                                 <td class="px-6 py-3 text-graphite-500">{{ $order->quantity }}</td>
+                                <td class="px-6 py-3 text-graphite-500">{{ $order->total ? 'Rp '.number_format((float) $order->total, 0, ',', '.') : '—' }}</td>
                                 <td class="px-6 py-3 text-graphite-500">{{ $order->created_at->format('d M Y') }}</td>
                                 <td class="px-6 py-3">
                                     @if ($order->transactions_count)
@@ -162,8 +164,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-3">
-                                    <div class="flex flex-wrap justify-end gap-2">
-                                        <a href="{{ route('admin.transactions.create', ['order_id' => $order->id]) }}" class="rounded-lg border border-amber-600 px-3 py-1.5 text-xs font-medium text-amber-600 transition hover:bg-amber-50">Buat Transaksi</a>
+                                        <div class="flex flex-wrap justify-end gap-2">
                                         <a href="{{ route('admin.orders.edit', $order) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Ubah Status</a>
                                         <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return confirm('Yakin ingin menghapus pemesanan ini? Transaksi terkait ikut terhapus.')">
                                             @csrf
@@ -175,7 +176,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-graphite-500">Belum ada pemesanan.</td>
+                                <td colspan="8" class="px-6 py-8 text-center text-graphite-500">Belum ada pemesanan.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -190,7 +191,7 @@
         @endif
 
         @if ($tab === 'transaksi')
-            <div class="flex flex-col gap-3 border-b border-line-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line-200 px-6 py-4">
                 <div class="flex flex-wrap items-center gap-2">
                     <a href="{{ route('admin.sales.index', array_filter(['tab' => 'transaksi', 'order' => $orderId])) }}"
                        class="rounded-full border px-4 py-1.5 text-sm font-medium transition {{ blank($status) ? 'border-steel-700 bg-steel-700 text-white' : 'border-line-200 bg-white text-graphite-500 hover:text-steel-700' }}">
@@ -203,15 +204,13 @@
                         </a>
                     @endforeach
                 </div>
-                <a href="{{ route('admin.transactions.create') }}" class="rounded-lg bg-steel-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-steel-900">
-                    + Tambah Transaksi
-                </a>
+                <p class="text-sm text-graphite-500">Monitoring — pembayaran dicatat & dikoreksi oleh staff.</p>
             </div>
 
             @if ($activeOrder)
                 <div class="flex items-center gap-2 border-b border-line-200 bg-paper-100 px-6 py-3 text-sm text-graphite-500">
                     <span>Filter pemesanan:</span>
-                    <span class="font-semibold text-graphite-900">#{{ $activeOrder->id }} — {{ $activeOrder->customer?->name }} — {{ $activeOrder->product?->name }}</span>
+                    <span class="font-semibold text-graphite-900">#{{ $activeOrder->id }} — {{ $activeOrder->customer?->name }} — {{ $activeOrder->itemLabel() }}</span>
                     <a href="{{ route('admin.sales.index', ['tab' => 'transaksi']) }}" class="font-medium text-steel-700 hover:underline">Hapus filter</a>
                 </div>
             @endif
@@ -225,7 +224,6 @@
                             <th class="px-6 py-3">Pelanggan</th>
                             <th class="px-6 py-3">Jumlah</th>
                             <th class="px-6 py-3">Status</th>
-                            <th class="px-6 py-3 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -235,7 +233,7 @@
                                 <td class="px-6 py-3">
                                     <a href="{{ route('admin.sales.index', ['tab' => 'transaksi', 'order' => $transaction->order_id]) }}"
                                        class="text-graphite-500 transition hover:text-steel-700">
-                                        #{{ $transaction->order_id }} — {{ $transaction->order?->product?->name }}
+                                        #{{ $transaction->order_id }} — {{ $transaction->order?->itemLabel() }}
                                     </a>
                                 </td>
                                 <td class="px-6 py-3 font-medium text-graphite-900">{{ $transaction->order?->customer?->name ?? '—' }}</td>
@@ -246,20 +244,10 @@
                                         {{ $transaction->status->label() }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-3">
-                                    <div class="flex justify-end gap-2">
-                                        <a href="{{ route('admin.transactions.edit', $transaction) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Edit</a>
-                                        <form method="POST" action="{{ route('admin.transactions.destroy', $transaction) }}" onsubmit="return confirm('Yakin ingin menghapus transaksi ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50">Hapus</button>
-                                        </form>
-                                    </div>
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-graphite-500">Belum ada transaksi.</td>
+                                <td colspan="5" class="px-6 py-8 text-center text-graphite-500">Belum ada transaksi.</td>
                             </tr>
                         @endforelse
                     </tbody>

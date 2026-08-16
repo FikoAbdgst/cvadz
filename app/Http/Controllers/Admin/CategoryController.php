@@ -14,11 +14,21 @@ class CategoryController extends Controller
 {
     public function index(Request $request): View
     {
-        $categories = Category::withCount('products')
+        $type = $request->input('type', 'produk');
+
+        $categories = Category::when($type === 'layanan', function ($query) {
+            return $query->withCount('services');
+        }, function ($query) {
+            return $query->withCount('products');
+        })
+            ->where('type', $type)
             ->orderBy('name')
             ->paginate(15);
 
-        return view('admin.categories.index', ['categories' => $categories]);
+        return view('admin.categories.index', [
+            'categories' => $categories,
+            'type' => $type,
+        ]);
     }
 
     public function create(): View
@@ -31,9 +41,10 @@ class CategoryController extends Controller
         Category::create([
             'name' => $request->name,
             'slug' => $request->slug ?: Str::slug($request->name),
+            'type' => $request->input('type', 'produk'),
         ]);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()->route('admin.categories.index', ['type' => $request->input('type', 'produk')])
             ->with('success', 'Kategori berhasil ditambahkan.');
     }
 
@@ -47,21 +58,27 @@ class CategoryController extends Controller
         $kategori->update([
             'name' => $request->name,
             'slug' => $request->slug ?: Str::slug($request->name),
+            'type' => $request->input('type', 'produk'),
         ]);
 
-        return redirect()->route('admin.categories.index')
+        return redirect()->route('admin.categories.index', ['type' => $kategori->type])
             ->with('success', 'Kategori berhasil diperbarui.');
     }
 
     public function destroy(Category $kategori): RedirectResponse
     {
-        if ($kategori->products()->exists()) {
-            return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki produk.');
+        $count = $kategori->type === 'layanan' ? $kategori->services()->count() : $kategori->products()->count();
+
+        if ($count > 0) {
+            $label = $kategori->type === 'layanan' ? 'layanan' : 'produk';
+
+            return back()->with('error', "Kategori tidak dapat dihapus karena masih memiliki $label.");
         }
 
+        $type = $kategori->type;
         $kategori->delete();
 
-        return redirect()->route('admin.categories.index')
+        return redirect()->route('admin.categories.index', ['type' => $type])
             ->with('success', 'Kategori berhasil dihapus.');
     }
 }

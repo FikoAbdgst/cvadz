@@ -32,6 +32,7 @@ class CategoryRequest extends FormRequest
                 'regex:/^[a-z0-9-]+$/',
                 Rule::unique('categories', 'slug')->ignore($this->route('kategori')),
             ],
+            'type' => ['required', 'in:produk,layanan'],
         ];
     }
 

@@ -20,6 +20,15 @@
             @method('PUT')
 
             <div>
+                <label for="type" class="block text-sm font-medium text-graphite-900">Tipe Kategori</label>
+                <select id="type" name="type" required
+                        class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
+                    <option value="produk" @selected(old('type', $category->type) === 'produk')>Produk</option>
+                    <option value="layanan" @selected(old('type', $category->type) === 'layanan')>Layanan</option>
+                </select>
+            </div>
+
+            <div>
                 <label for="name" class="block text-sm font-medium text-graphite-900">Nama Kategori</label>
                 <input type="text" id="name" name="name" value="{{ old('name', $category->name) }}" required
                        class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">

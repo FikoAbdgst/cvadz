@@ -40,6 +40,18 @@
                        class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
             </div>
 
+            <div>
+                <label for="stock" class="block text-sm font-medium text-graphite-900">Stok <span class="text-graphite-500">(≤ {{ \App\Models\Product::LOW_STOCK_THRESHOLD }} dianggap kritis)</span></label>
+                <input type="number" step="1" min="0" id="stock" name="stock" value="{{ old('stock', $product->stock ?? 0) }}"
+                       class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
+            </div>
+
+            <div>
+                <label for="warranty_months" class="block text-sm font-medium text-graphite-900">Lama Garansi <span class="text-graphite-500">(bulan, 0 jika tanpa garansi)</span></label>
+                <input type="number" step="1" min="0" max="240" id="warranty_months" name="warranty_months" value="{{ old('warranty_months', $product->warranty_months ?? 0) }}"
+                       class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
+            </div>
+
             <div class="flex items-center gap-3 sm:col-span-2">
                 <label class="flex items-center gap-2 text-sm text-graphite-900">
                     <input type="checkbox" name="is_featured" value="1" @checked($product->is_featured ?? false)

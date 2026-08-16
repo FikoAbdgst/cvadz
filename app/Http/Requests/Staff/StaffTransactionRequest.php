@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Staff;
 
 use App\Enums\TransactionStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class TransactionRequest extends FormRequest
+class StaffTransactionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,8 @@ class TransactionRequest extends FormRequest
     {
         return [
             'order_id' => ['required', 'exists:orders,id'],
-            'amount' => ['required', 'numeric', 'min:0'],
+            'amount' => ['required', 'numeric', 'min:1'],
+            'payment_type' => ['required', 'in:tunai,transfer,lainnya'],
             'transaction_date' => ['required', 'date'],
             'status' => ['required', Rule::enum(TransactionStatus::class)],
         ];
@@ -41,8 +42,11 @@ class TransactionRequest extends FormRequest
     {
         return [
             'order_id.required' => 'Pemesanan wajib dipilih.',
-            'amount.required' => 'Jumlah transaksi wajib diisi.',
+            'amount.required' => 'Jumlah pembayaran wajib diisi.',
+            'amount.min' => 'Jumlah pembayaran minimal 1.',
+            'payment_type.required' => 'Metode pembayaran wajib dipilih.',
             'transaction_date.required' => 'Tanggal transaksi wajib diisi.',
+            'status.required' => 'Status pembayaran wajib dipilih.',
         ];
     }
 }

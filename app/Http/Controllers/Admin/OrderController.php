@@ -8,6 +8,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Service;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -23,13 +24,14 @@ class OrderController extends Controller
         return view('admin.orders.create', [
             'customers' => Customer::orderBy('name')->get(),
             'products' => Product::orderBy('name')->get(),
+            'services' => Service::orderBy('name')->get(),
             'statuses' => OrderStatus::cases(),
         ]);
     }
 
     public function store(OrderRequest $request): RedirectResponse
     {
-        Order::create($request->validated());
+        Order::create($request->validated() + ['admin_user_id' => auth()->id()]);
 
         return redirect()->route('admin.sales.index', ['tab' => 'pemesanan'])
             ->with('success', 'Pemesanan berhasil ditambahkan.');
@@ -41,6 +43,7 @@ class OrderController extends Controller
             'order' => $pemesanan,
             'customers' => Customer::orderBy('name')->get(),
             'products' => Product::orderBy('name')->get(),
+            'services' => Service::orderBy('name')->get(),
             'statuses' => OrderStatus::cases(),
         ]);
     }

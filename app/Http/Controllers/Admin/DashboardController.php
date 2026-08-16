@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cashbook;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Order;
@@ -27,7 +28,13 @@ class DashboardController extends Controller
             ->where('status', 'lunas')
             ->count();
 
-        $recentOrders = Order::with(['customer', 'product'])
+        $totalSales = Transaction::where('status', 'lunas')->sum('amount');
+        $criticalStock = Product::where('stock', '<=', Product::LOW_STOCK_THRESHOLD)->count();
+        $cashBalance = Cashbook::where('type', 'pemasukan')->sum('amount')
+            - Cashbook::where('type', 'pengeluaran')->sum('amount');
+        $lastCashEntry = Cashbook::latest('transaction_date')->first();
+
+        $recentOrders = Order::with(['customer', 'product', 'service'])
             ->latest()
             ->take(5)
             ->get();
@@ -41,6 +48,10 @@ class DashboardController extends Controller
             'totalOrders' => $totalOrders,
             'monthlySales' => $monthlySales,
             'monthlyTransactions' => $monthlyTransactions,
+            'totalSales' => $totalSales,
+            'criticalStock' => $criticalStock,
+            'cashBalance' => $cashBalance,
+            'lastCashEntry' => $lastCashEntry,
             'recentOrders' => $recentOrders,
             'pendingOrders' => $pendingOrders,
         ]);

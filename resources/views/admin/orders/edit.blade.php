@@ -16,13 +16,31 @@
                     <dd class="mt-1 font-medium text-graphite-900">{{ $order->customer?->phone }}</dd>
                 </div>
                 <div>
-                    <dt class="text-graphite-500">Produk</dt>
-                    <dd class="mt-1 font-medium text-graphite-900">{{ $order->product?->name }}</dd>
+                    <dt class="text-graphite-500">Produk / Layanan</dt>
+                    <dd class="mt-1 font-medium text-graphite-900">{{ $order->itemLabel() }}</dd>
                 </div>
                 <div>
                     <dt class="text-graphite-500">Jumlah</dt>
                     <dd class="mt-1 font-medium text-graphite-900">{{ $order->quantity }}</dd>
                 </div>
+                @if ($order->total)
+                    <div>
+                        <dt class="text-graphite-500">Total Harga</dt>
+                        <dd class="mt-1 font-medium text-graphite-900">Rp {{ number_format((float) $order->total, 0, ',', '.') }}</dd>
+                    </div>
+                @endif
+                @if ($order->hasWarranty())
+                    <div>
+                        <dt class="text-graphite-500">Selesai Garansi</dt>
+                        <dd class="mt-1 font-medium text-graphite-900">
+                            {{ $order->warranty_end_date->format('d M Y') }}
+                            <span class="ml-1 rounded-full px-2 py-0.5 text-xs font-medium
+                                {{ $order->isWarrantyActive() ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600' }}">
+                                {{ $order->warrantyStatus() === 'aktif' ? 'Aktif' : 'Kedaluwarsa' }}
+                            </span>
+                        </dd>
+                    </div>
+                @endif
                 <div>
                     <dt class="text-graphite-500">Tanggal</dt>
                     <dd class="mt-1 font-medium text-graphite-900">{{ $order->created_at->format('d M Y H:i') }}</dd>
@@ -61,7 +79,10 @@
 
                 <input type="hidden" name="customer_id" value="{{ $order->customer_id }}">
                 <input type="hidden" name="product_id" value="{{ $order->product_id }}">
+                <input type="hidden" name="service_id" value="{{ $order->service_id }}">
                 <input type="hidden" name="quantity" value="{{ $order->quantity }}">
+                <input type="hidden" name="total" value="{{ $order->total }}">
+                <input type="hidden" name="warranty_end_date" value="{{ $order->warranty_end_date?->format('Y-m-d') }}">
 
                 <div>
                     <label for="status" class="block text-sm font-medium text-graphite-900">Status Pemesanan</label>

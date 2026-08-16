@@ -48,6 +48,15 @@
                         {{ $product->price ? 'Rp '.number_format((float) $product->price, 0, ',', '.') : 'Harga: Hubungi kami' }}
                     </p>
 
+                    @if ($product->warranty_months)
+                        <div class="mt-3 inline-flex items-center gap-2 rounded border border-line-200 bg-paper-100 px-3 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-steel-700">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/>
+                            </svg>
+                            Garansi {{ $product->warranty_months }} bulan
+                        </div>
+                    @endif
+
                     <div class="mt-6 border-t border-line-200 pt-6">
                         <h2 class="font-display text-lg font-semibold text-graphite-900">Deskripsi</h2>
                         <p class="mt-3 whitespace-pre-line leading-relaxed text-graphite-500">

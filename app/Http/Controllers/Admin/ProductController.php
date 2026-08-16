@@ -29,7 +29,7 @@ class ProductController extends Controller
 
     public function create(): View
     {
-        return view('admin.products.create', ['categories' => Category::orderBy('name')->get()]);
+        return view('admin.products.create', ['categories' => Category::where('type', 'produk')->orderBy('name')->get()]);
     }
 
     public function store(ProductRequest $request): RedirectResponse
@@ -41,6 +41,8 @@ class ProductController extends Controller
             'description' => $request->description,
             'price' => $request->filled('price') ? $request->price : null,
             'is_featured' => $request->boolean('is_featured'),
+            'warranty_months' => $request->filled('warranty_months') ? $request->warranty_months : null,
+            'stock' => $request->filled('stock') ? $request->stock : 0,
         ]);
 
         $this->syncSpecifications($product, $request->input('specifications', []));
@@ -57,7 +59,7 @@ class ProductController extends Controller
 
         return view('admin.products.edit', [
             'product' => $produk,
-            'categories' => Category::orderBy('name')->get(),
+            'categories' => Category::where('type', 'produk')->orderBy('name')->get(),
         ]);
     }
 
@@ -70,6 +72,8 @@ class ProductController extends Controller
             'description' => $request->description,
             'price' => $request->filled('price') ? $request->price : null,
             'is_featured' => $request->boolean('is_featured'),
+            'warranty_months' => $request->filled('warranty_months') ? $request->warranty_months : null,
+            'stock' => $request->filled('stock') ? $request->stock : 0,
         ]);
 
         $this->syncSpecifications($produk, $request->input('specifications', []));

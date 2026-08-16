@@ -5,9 +5,9 @@
 @section('content')
     <section class="hero-glow relative overflow-hidden pt-32 pb-16 text-white">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p class="label-mono text-amber-600">Katalog Mesin</p>
-            <h1 class="mt-3 font-display text-4xl font-bold">Katalog Produk</h1>
-            <p class="mt-3 max-w-2xl text-steel-400">Jelajahi mesin industri yang kami fabrikasi. Hubungi kami via WhatsApp untuk info lebih lanjut.</p>
+            <p class="label-mono text-amber-600">Katalog Mesin &amp; Sparepart</p>
+            <h1 class="mt-3 font-display text-4xl font-bold">Produk &amp; Sparepart</h1>
+            <p class="mt-3 max-w-2xl text-steel-400">Jelajahi mesin industri dan sparepart yang kami sediakan. Hubungi kami via WhatsApp untuk info lebih lanjut.</p>
 
             <form method="GET" action="{{ route('products.index') }}" class="mt-8 flex flex-col gap-3 sm:flex-row">
                 <input type="search" name="q" value="{{ $search }}" placeholder="Cari mesin..." autocomplete="off"
@@ -48,11 +48,16 @@
                            class="plate group block rounded transition hover:shadow-sm">
                             <span class="plate-corner-bl"></span>
                             <span class="plate-corner-br"></span>
-                            <div class="aspect-[4/3] overflow-hidden bg-paper-100">
+                            <div class="relative aspect-[4/3] overflow-hidden bg-paper-100">
                                 @if ($product->primaryImage())
                                     <img src="{{ asset('storage/'.$product->primaryImage()->image_path) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
                                 @else
                                     <div class="flex h-full items-center justify-center font-display text-sm font-semibold text-graphite-500">{{ $product->name }}</div>
+                                @endif
+                                @if ($product->warranty_months)
+                                    <span class="absolute left-3 top-3 rounded bg-steel-900/85 px-2 py-1 font-mono text-[10px] font-semibold uppercase tracking-widest text-white">
+                                        Garansi {{ $product->warranty_months }} bln
+                                    </span>
                                 @endif
                             </div>
                             <div class="p-5">
