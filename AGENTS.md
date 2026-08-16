@@ -1,0 +1,51 @@
+# AGENTS.md
+
+Sales website (Laravel 13) for CV Adzra Engineering Bandung (industrial machine fabrication). The app is **built and MVP-complete** (public catalog + admin panel). `PROJECT_CONTEXT.md` is the authoritative spec (schema, MVP scope, design system); read it before structural changes.
+
+## Hard constraints (do not violate)
+
+- **Pure Laravel 13 / PHP 8.3.** Never install Breeze/Jetstream/Fortify or any starter kit — auth is manual (`AuthController` + `Auth::attempt`, routes `/login`, `/logout`).
+- **No JS framework** (no Alpine/Vue/React/Livewire). Frontend interactivity is vanilla JS only. Tailwind CSS v4 via `@tailwindcss/vite`.
+- **WhatsApp is just `https://wa.me/<number>?text=<urlencoded msg>` links.** Number comes from `config('services.whatsapp.number')` = `WA_NUMBER` in `.env` (currently `6281234567890`). Build messages with `App\Support\WhatsApp::link()` / `Product::whatsappMessage()`.
+- **No public register page.** Admin account from `AdminSeeder` (`admin@cvadz.com` / `admin123`).
+- Sales reports are **aggregation queries over `transactions`** — no report table.
+
+## Architecture (things filenames won't tell you)
+
+- **One combined admin "Transaksi" menu** at `GET /admin/transaksi` = `Admin\SalesController@index` with tabs `?tab=pelanggan|pemesanan|transaksi`. View: `resources/views/admin/sales/index.blade.php`.
+  - `admin.transactions.index` **does not exist** (resource uses `->except(['index'])`). CRUD redirects go to `route('admin.sales.index', ['tab' => ...])`.
+  - `admin.customers.index` / `admin.orders.index` still exist but just redirect to the sales tabs (keep old bookmarks working). Don't recreate standalone list views.
+  - `admin.transactions.create` accepts `?order_id=` to preselect the order (the sales page links "Buat Transaksi" with it).
+- Admin resource routes are named via `->names('categories'|'products'|'customers'|'orders'|'transactions')` under group `admin.`. Public product routes use `products.*`.
+- Public `ProductController` vs `Admin\ProductController` name clash: the admin one is imported `as AdminProductController`.
+- Models use Laravel 13 attribute style `#[Fillable([...])]` / `#[Hidden([...])]`, NOT `$fillable`/`$hidden`.
+- Brand logo = `public/logo.png` (transparent PNG, used in navbar, footer, admin sidebar, login).
+
+## Design system
+
+- Tokens live in `@theme { ... }` in `resources/css/app.css` (`--color-brand-*`), used as `text-brand-ink`, `bg-brand-primary`, etc.
+- Primary blue `#1D4ED8`, dark `#1E3A8A`, light `#3B82F6`; backgrounds white / `#F8FAFC` (`brand-bg`); ink `#1E293B`, muted `#64748B`, border `#E2E8F0`.
+- **Amber `#F59E0B` only for action elements** (WhatsApp button, CTA, "Produk Unggulan" badge, "Buat Transaksi" action). Never broadly.
+- Headings Poppins 600–700 (`font-heading`), body Inter; Google Fonts imported in layouts.
+
+## Testing gotchas (high-value)
+
+- **`php artisan test` output is intercepted and truncated to ~2KB JSON.** Always redirect to a log and read it:
+  `php artisan test > /c/Users/impax/AppData/Local/Temp/opencode/test.log 2>&1`
+- Tests run on **SQLite `:memory:`** (`phpunit.xml`), but dev uses MySQL. Don't rely on MySQL-specific behavior (see date gotcha below).
+- **`date` cast stores `'Y-m-d H:i:s'` on SQLite** (MySQL DATE truncates the time). So string `whereBetween('transaction_date', [from, to])` misses the boundary date on SQLite. Use the `whereDate('col','>=',$from)->whereDate('col','<=',$to)` pattern (see `ReportController`/`DashboardController`).
+- **Misleading error:** a failed `assertRedirect` (e.g. validation redirects back because a required field is missing) crashes as `Call to a member function all() on array` in `TestResponseAssert::injectResponseContext`. Root cause is usually a Form Request failing validation, not the redirect itself. Check the request payload against the Form Request rules.
+- **Form Requests: `slug` must be `nullable`** (controllers auto-generate via `Str::slug`) — marking it `required` silently breaks store/update tests with the error above.
+- `test_admin_can_create_product_with_images_specs_and_videos` leaves `.jpg` artifacts in `storage/app/public/products/` — clean them up after running the suite (`rm storage/app/public/products/*.jpg`).
+
+## Dev flow & commands
+
+- Env: Windows + Git Bash, PHP 8.4 (C:\laragon), MySQL 8.4 at 127.0.0.1:3306, DB `cvadz`, root/empty password. `.env`: `APP_LOCALE=id`, `DB_CONNECTION=mysql`.
+- Verify after changes (in order): `vendor/bin/pint` (PSR-12) → `php artisan test` (log it) → `npm run build` → `php artisan serve --port=8000`.
+- **Dev workflow (1 terminal, no build/restart):** `npm run dev` = `concurrently "php artisan serve" "vite"` — this is the ONLY command the user needs while developing. It runs PHP server (:8000) + Vite dev server (:5173) together and creates `public/hot` (so `@vite()` serves hot assets instead of `public/build`). With `refresh: true` in `vite.config.js`, editing Blade/PHP/CSS/JS auto-reloads the browser — no manual refresh, no `npm run build`, no serve restart. `php artisan serve` (Laravel 13) also auto-restarts itself on `.env` changes (unless `--no-reload`).
+  - Never run `php artisan serve` while `npm run dev` is active — port 8000 conflicts ("Address already in use").
+  - `public/hot` must NOT be committed/kept; it is created by Vite dev server and removed when it stops. For a production/preview run: `npm run build`, then `php artisan serve` alone (no vite, no hot file).
+- Run one test: `php artisan test --filter=NameOfTest` (output also intercepted — log it too).
+- `php artisan serve` + curl **multipart uploads fail on Windows** (curl 000, no response). Use the feature test for upload flows; verify other pages with plain GET curl.
+- `composer` installs of `laravel/pint` have been flaky on this machine (codeload "Permission denied" / git-SSH hang). Workaround: `composer clear-cache` then retry.
+- Seeded demo data: `DemoSeeder` (categories, products w/ SVG placeholders, customers, orders, transactions). `storage:link` already created.

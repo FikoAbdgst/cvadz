@@ -1,0 +1,125 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+    --color-steel-900: #0F2A42;
+    --color-steel-700: #1C4C78;
+    --color-steel-400: #5C86AC;
+    --color-paper-100: #F2F5F7;
+    --color-graphite-900: #1B222B;
+    --color-graphite-500: #5C6773;
+    --color-line-200: #D7E0E6;
+    --color-amber-600: #D98A2B;
+    --color-amber-700: #B26F1E;
+}
+
+@layer components {
+
+    /* Panel dengan frame siku 4 sudut — elemen signature desain */
+    .plate {
+        position: relative;
+        border: 1px solid var(--color-line-200);
+        background: white;
+    }
+
+    .plate::before,
+    .plate::after,
+    .plate>.plate-corner-br,
+    .plate>.plate-corner-bl {
+        content: "";
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-color: var(--color-amber-600);
+        transition: border-color 150ms ease;
+    }
+
+    .plate::before {
+        top: -1px;
+        left: -1px;
+        border-top: 2px solid;
+        border-left: 2px solid;
+    }
+
+    .plate::after {
+        top: -1px;
+        right: -1px;
+        border-top: 2px solid;
+        border-right: 2px solid;
+    }
+
+    .plate-corner-bl {
+        bottom: -1px;
+        left: -1px;
+        border-bottom: 2px solid var(--color-amber-600);
+        border-left: 2px solid var(--color-amber-600);
+    }
+
+    .plate-corner-br {
+        bottom: -1px;
+        right: -1px;
+        border-bottom: 2px solid var(--color-amber-600);
+        border-right: 2px solid var(--color-amber-600);
+    }
+
+    .plate:hover::before,
+    .plate:hover::after,
+    .plate:hover .plate-corner-bl,
+    .plate:hover .plate-corner-br {
+        border-color: var(--color-steel-700);
+    }
+
+    /* Label mono uppercase — eyebrow, kode produk, kategori */
+    .label-mono {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--color-graphite-500);
+    }
+
+    /* Hero dengan glow radial halus — pengganti pola grid blueprint */
+    .hero-glow {
+        background-color: var(--color-steel-900);
+        background-image:
+            radial-gradient(55rem 30rem at 88% -15%, rgb(245 158 11 / 0.14), transparent 60%),
+            radial-gradient(50rem 32rem at -10% 115%, rgb(59 130 246 / 0.16), transparent 60%);
+    }
+
+    /* Navigasi bubble mengambang — kaca semi-transparan (blur + opacity) */
+    #nav-shell {
+        width: 100%;
+        max-width: 56rem;
+        height: 3.25rem;
+        margin-top: 0.75rem;
+        margin-inline: auto;
+        border-radius: 9999px;
+        border: 1px solid rgb(255 255 255 / 0.14);
+        background-color: rgb(15 42 66 / 0.55);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.5);
+    }
+
+    /* saat di-scroll: kapsul menggelap agar tetap kontras di sektor terang */
+    #nav-shell.scrolled {
+        background-color: rgb(15 42 66 / 0.92);
+        border-color: rgb(255 255 255 / 0.22);
+        box-shadow: 0 12px 30px -10px rgb(0 0 0 / 0.6);
+    }
+
+    /* titik rivet di ujung kapsul */
+    .nav-rivet {
+        width: 5px;
+        height: 5px;
+        border-radius: 9999px;
+        background-color: var(--color-amber-600);
+    }
+
+}
