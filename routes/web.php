@@ -55,6 +55,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/absensi', [AttendanceController::class, 'index'])->name('attendances.index');
     Route::get('/penggajian', [PayrollController::class, 'index'])->name('payrolls.index');
     Route::post('/penggajian/generate', [PayrollController::class, 'generate'])->name('payrolls.generate');
+    Route::get('/penggajian/{payroll}/edit', [PayrollController::class, 'edit'])->name('payrolls.edit');
+    Route::put('/penggajian/{payroll}', [PayrollController::class, 'update'])->name('payrolls.update');
     Route::post('/penggajian/{payroll}/approve', [PayrollController::class, 'approve'])->name('payrolls.approve');
     Route::delete('/penggajian/{payroll}', [PayrollController::class, 'destroy'])->name('payrolls.destroy');
 });

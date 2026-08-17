@@ -171,6 +171,124 @@
     </div>
 
     @yield('scripts')
+
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 print:hidden" style="display:none;">
+        <div class="plate relative mx-4 w-full max-w-md rounded bg-white p-6 shadow-lg">
+            <span class="plate-corner-bl"></span>
+            <span class="plate-corner-br"></span>
+            <p id="confirm-modal-msg" class="text-sm leading-relaxed text-graphite-900"></p>
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" id="confirm-modal-cancel"
+                    class="rounded border border-line-200 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-graphite-500 transition hover:text-steel-700">
+                    Batal
+                </button>
+                <button type="button" id="confirm-modal-ok"
+                    class="rounded bg-steel-700 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-steel-900">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="prompt-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 print:hidden" style="display:none;">
+        <div class="plate relative mx-4 w-full max-w-md rounded bg-white p-6 shadow-lg">
+            <span class="plate-corner-bl"></span>
+            <span class="plate-corner-br"></span>
+            <p id="prompt-modal-label" class="text-sm leading-relaxed text-graphite-900"></p>
+            <input type="text" id="prompt-modal-input"
+                   class="mt-3 block w-full rounded border border-line-200 px-3 py-2.5 text-sm text-graphite-900 focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" id="prompt-modal-cancel"
+                    class="rounded border border-line-200 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-graphite-500 transition hover:text-steel-700">
+                    Batal
+                </button>
+                <button type="button" id="prompt-modal-ok"
+                    class="rounded bg-steel-700 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-steel-900">
+                    Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            /* ── Confirm modal ── */
+            var modal = document.getElementById('confirm-modal');
+            var msgEl = document.getElementById('confirm-modal-msg');
+            var btnOk = document.getElementById('confirm-modal-ok');
+            var btnCancel = document.getElementById('confirm-modal-cancel');
+            var _resolve;
+
+            function open(message, danger) {
+                msgEl.textContent = message;
+                btnOk.className = danger
+                    ? 'rounded bg-red-600 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-red-700'
+                    : 'rounded bg-steel-700 px-4 py-2 font-mono text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-steel-900';
+                modal.style.display = 'flex';
+                btnOk.focus();
+            }
+
+            function close(result) {
+                modal.style.display = 'none';
+                if (_resolve) { _resolve(result); _resolve = null; }
+            }
+
+            btnOk.addEventListener('click', function () { close(true); });
+            btnCancel.addEventListener('click', function () { close(false); });
+            modal.addEventListener('click', function (e) { if (e.target === modal) close(false); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.style.display === 'flex') close(false); });
+
+            window.confirmModal = function (message, danger) {
+                danger = danger === undefined ? true : danger;
+                return new Promise(function (resolve) {
+                    _resolve = resolve;
+                    open(message, danger);
+                });
+            };
+
+            window.submitConfirm = function (form, message) {
+                confirmModal(message).then(function (ok) { if (ok) form.submit(); });
+                return false;
+            };
+
+            /* ── Prompt modal ── */
+            var pModal = document.getElementById('prompt-modal');
+            var pLabel = document.getElementById('prompt-modal-label');
+            var pInput = document.getElementById('prompt-modal-input');
+            var pBtnOk = document.getElementById('prompt-modal-ok');
+            var pBtnCancel = document.getElementById('prompt-modal-cancel');
+            var _pResolve;
+
+            function openPrompt(label, placeholder, defaultVal) {
+                pLabel.textContent = label;
+                pInput.placeholder = placeholder || '';
+                pInput.value = defaultVal || '';
+                pModal.style.display = 'flex';
+                pInput.focus();
+                pInput.select();
+            }
+
+            function closePrompt(val) {
+                pModal.style.display = 'none';
+                if (_pResolve) { _pResolve(val); _pResolve = null; }
+            }
+
+            pBtnOk.addEventListener('click', function () { closePrompt(pInput.value.trim() || null); });
+            pBtnCancel.addEventListener('click', function () { closePrompt(null); });
+            pModal.addEventListener('click', function (e) { if (e.target === pModal) closePrompt(null); });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && pModal.style.display === 'flex') closePrompt(null);
+                if (e.key === 'Enter' && pModal.style.display === 'flex' && document.activeElement === pInput) closePrompt(pInput.value.trim() || null);
+            });
+
+            window.promptModal = function (label, placeholder, defaultVal) {
+                return new Promise(function (resolve) {
+                    _pResolve = resolve;
+                    openPrompt(label, placeholder, defaultVal);
+                });
+            };
+        })();
+    </script>
 </body>
 
 </html>

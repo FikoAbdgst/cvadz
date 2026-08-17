@@ -118,6 +118,7 @@ class ProductController extends Controller
         $rows = collect($specifications)
             ->filter(fn ($spec) => filled($spec['spec_key'] ?? null))
             ->map(fn ($spec) => [
+                'model_name' => $spec['model_name'] ?? null,
                 'spec_key' => $spec['spec_key'],
                 'spec_value' => $spec['spec_value'] ?? '',
             ])

@@ -45,6 +45,7 @@ class ProductRequest extends FormRequest
             'specifications' => ['nullable', 'array'],
             'specifications.*.spec_key' => ['nullable', 'string', 'max:100'],
             'specifications.*.spec_value' => ['nullable', 'string', 'max:255'],
+            'specifications.*.model_name' => ['nullable', 'string', 'max:100'],
 
             'videos' => ['nullable', 'array'],
             'videos.*.video_url' => ['nullable', 'url', 'max:255'],

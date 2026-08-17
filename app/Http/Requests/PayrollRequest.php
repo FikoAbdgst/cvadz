@@ -24,6 +24,10 @@ class PayrollRequest extends FormRequest
     {
         return [
             'period' => ['required', 'date_format:Y-m'],
+            'bonus' => ['nullable', 'numeric', 'min:0'],
+            'lemburan' => ['nullable', 'numeric', 'min:0'],
+            'uang_luar_kota' => ['nullable', 'numeric', 'min:0'],
+            'kasbon' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 
@@ -37,6 +41,10 @@ class PayrollRequest extends FormRequest
         return [
             'period.required' => 'Periode wajib dipilih.',
             'period.date_format' => 'Format periode tidak valid.',
+            'bonus.numeric' => 'Bonus harus berupa angka.',
+            'lemburan.numeric' => 'Lemburan harus berupa angka.',
+            'uang_luar_kota.numeric' => 'Uang luar kota harus berupa angka.',
+            'kasbon.numeric' => 'Kasbon harus berupa angka.',
         ];
     }
 }

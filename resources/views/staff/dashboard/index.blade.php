@@ -83,7 +83,7 @@
                                     @if (($order->payment_status?->value ?? null) === 'dp' && $order->transactions->first())
                                         <form method="POST" action="{{ route('staff.transactions.verify', $order->transactions->first()) }}" class="inline">
                                             @csrf
-                                            <button type="submit" onclick="return confirm('Verifikasi pembayaran ini sebagai LUNAS?')"
+                                            <button type="submit" onclick="return submitConfirm(this.closest('form'), 'Verifikasi pembayaran ini sebagai LUNAS?')"
                                                     class="rounded-lg border border-green-600 px-3 py-1.5 text-xs font-semibold text-green-700 transition hover:bg-green-600 hover:text-white">ACC</button>
                                         </form>
                                     @endif

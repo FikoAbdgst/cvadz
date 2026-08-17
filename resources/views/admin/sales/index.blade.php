@@ -72,7 +72,7 @@
                                 <td class="px-6 py-3">
                                     <div class="flex justify-end gap-2">
                                         <a href="{{ route('admin.customers.edit', $customer) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Edit</a>
-                                        <form method="POST" action="{{ route('admin.customers.destroy', $customer) }}" onsubmit="return confirm('Yakin ingin menghapus pelanggan ini? Pemesanan terkait ikut terhapus.')">
+                                        <form method="POST" action="{{ route('admin.customers.destroy', $customer) }}" onsubmit="return submitConfirm(this, 'Yakin ingin menghapus pelanggan ini? Pemesanan terkait ikut terhapus.')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50">Hapus</button>
@@ -176,7 +176,7 @@
                                 <td class="px-6 py-3">
                                     <div class="flex flex-wrap justify-end gap-2">
                                         <a href="{{ route('admin.orders.edit', $order) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Edit</a>
-                                        <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return confirm('Yakin ingin menghapus pemesanan ini? Transaksi terkait ikut terhapus.')">
+                                        <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return submitConfirm(this, 'Yakin ingin menghapus pemesanan ini? Transaksi terkait ikut terhapus.')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50">Hapus</button>

@@ -43,7 +43,7 @@
                             <td class="px-6 py-3">
                                 <div class="flex justify-end gap-2">
                                     <a href="{{ route('staff.workers.edit', $worker) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Edit</a>
-                                    <form method="POST" action="{{ route('staff.workers.destroy', $worker) }}" onsubmit="return confirm('Yakin ingin menghapus pekerja ini?')">
+                                    <form method="POST" action="{{ route('staff.workers.destroy', $worker) }}" onsubmit="return submitConfirm(this, 'Yakin ingin menghapus pekerja ini?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50">Hapus</button>

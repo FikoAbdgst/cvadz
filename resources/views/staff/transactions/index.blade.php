@@ -78,7 +78,7 @@
                                         @if (($order->payment_status?->value ?? null) === 'dp' && $order->transactions->first())
                                             <form method="POST" action="{{ route('staff.transactions.verify', $order->transactions->first()) }}" class="inline">
                                                 @csrf
-                                                <button type="submit" onclick="return confirm('Verasifikasi pembayaran ini sebagai LUNAS? Pastikan sudah cek platform ATM.')"
+                                                <button type="submit" onclick="return submitConfirm(this.closest('form'), 'Verasifikasi pembayaran ini sebagai LUNAS? Pastikan sudah cek platform ATM.')"
                                                         class="rounded-lg border border-green-600 px-3 py-1.5 text-xs font-semibold text-green-700 transition hover:bg-green-600 hover:text-white">ACC Lunas</button>
                                             </form>
                                         @endif
@@ -157,7 +157,7 @@
                                     <div class="flex flex-wrap justify-end gap-2">
                                         <a href="{{ route('staff.transactions.invoice', $transaction) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Faktur</a>
                                         <a href="{{ route('staff.transactions.edit', $transaction) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Edit</a>
-                                        <form method="POST" action="{{ route('staff.transactions.destroy', $transaction) }}" onsubmit="return confirm('Yakin ingin menghapus transaksi ini? Catatan pemasukan di Buku Kas ikut terhapus.')">
+                                        <form method="POST" action="{{ route('staff.transactions.destroy', $transaction) }}" onsubmit="return submitConfirm(this, 'Yakin ingin menghapus transaksi ini? Catatan pemasukan di Buku Kas ikut terhapus.')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50">Hapus</button>

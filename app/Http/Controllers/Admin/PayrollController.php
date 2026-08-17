@@ -40,7 +40,7 @@ class PayrollController extends Controller
             ->values();
 
         $approvalCount = $payrolls->where('status', 'approved')->count();
-        $approvedAmount = $payrolls->where('status', 'approved')->sum('salary_amount');
+        $approvedAmount = $payrolls->where('status', 'approved')->sum(fn ($p) => $p->net_salary);
 
         return view('admin.payrolls.index', [
             'payrolls' => $payrolls,
@@ -97,6 +97,28 @@ class PayrollController extends Controller
             ->with('success', $message);
     }
 
+    public function edit(Payroll $payroll): View
+    {
+        $payroll->load('worker');
+
+        return view('admin.payrolls.edit', [
+            'payroll' => $payroll,
+        ]);
+    }
+
+    public function update(PayrollRequest $request, Payroll $payroll): RedirectResponse
+    {
+        $payroll->update([
+            'bonus' => $request->filled('bonus') ? $request->bonus : 0,
+            'lemburan' => $request->filled('lemburan') ? $request->lemburan : 0,
+            'uang_luar_kota' => $request->filled('uang_luar_kota') ? $request->uang_luar_kota : 0,
+            'kasbon' => $request->filled('kasbon') ? $request->kasbon : 0,
+        ]);
+
+        return redirect()->route('admin.payrolls.index', ['period' => $payroll->period])
+            ->with('success', 'Komponen gaji berhasil diperbarui.');
+    }
+
     public function approve(Payroll $payroll): RedirectResponse
     {
         if ($payroll->status === 'approved') {
@@ -112,7 +134,7 @@ class PayrollController extends Controller
 
             Cashbook::create([
                 'type' => 'pengeluaran',
-                'amount' => $payroll->salary_amount,
+                'amount' => $payroll->net_salary,
                 'description' => 'Pembayaran gaji '.$payroll->worker->name.' — periode '.$payroll->period,
                 'transaction_date' => now()->toDateString(),
                 'user_id' => auth()->id(),
