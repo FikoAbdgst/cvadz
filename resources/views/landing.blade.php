@@ -10,21 +10,21 @@
             <div class="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
                 <div>
                     <p
-                        class="inline-flex items-center gap-2 rounded border border-white/15 px-2.5 py-1 font-mono text-[11px] uppercase tracking-widest text-amber-500">
+                        class="hero-anim hero-anim-delay-1 inline-flex items-center gap-2 rounded border border-white/15 px-2.5 py-1 font-mono text-[11px] uppercase tracking-widest text-amber-500">
                         <svg class="h-2.5 w-2.5" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1">
                             <path d="M5 0v10M0 5h10" />
                         </svg>
                         Padalarang, Bandung Barat
                     </p>
-                    <h1 class="mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
+                    <h1 class="hero-anim hero-anim-delay-2 mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
                         Fabrikasi Mesin Industri, Sesuai Spesifikasi Anda
                     </h1>
-                    <p class="mt-4 max-w-md text-sm leading-relaxed text-steel-400 sm:text-base">
+                    <p class="hero-anim hero-anim-delay-3 mt-4 max-w-md text-sm leading-relaxed text-steel-400 sm:text-base">
                         Rotary dryer dan mesin cetak pelet — dirancang serta dibuat langsung oleh tim kami di
                         Bandung.
                     </p>
 
-                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <div class="hero-anim hero-anim-delay-4 mt-8 flex flex-col gap-3 sm:flex-row">
                         <a href="{{ route('products.index') }}"
                             class="rounded bg-amber-600 px-6 py-3.5 text-center font-mono text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-amber-700 active:bg-amber-700 sm:py-3">
                             Lihat Produk →
@@ -36,16 +36,43 @@
                     </div>
                 </div>
 
-                {{-- foto dibingkai ala lembar gambar teknik: crosshair sudut, garis dimensi,
-                     dan tag kop gambar — bukan cuma foto ditempel, tapi didokumentasikan
-                     seperti gambar kerja. Angka dimensi di bawah ini ilustratif, ganti
-                     dengan ukuran aktual mesin di foto atau hapus kalau tidak relevan. --}}
-                <div class="relative">
-                    <div class="relative aspect-[4/3] overflow-hidden rounded-lg ring-1 ring-white/10 sm:aspect-[16/10]">
-                        <img src="{{ asset('rotari.jpeg') }}" alt="Fabrikasi rotary dryer CV Adzra Engineering"
-                            class="h-full w-full object-cover">
+                {{-- foto carousel ala lembar gambar teknik --}}
+                <div class="hero-anim hero-anim-delay-3 relative">
+                    <div id="hero-carousel"
+                        class="relative aspect-[4/3] overflow-hidden rounded-lg ring-1 ring-white/10 sm:aspect-[16/10]">
 
-                        {{-- crosshair registrasi di tiap sudut — hanya tampil di layar sm+ --}}
+                        @php
+                            $heroSlides = [
+                                [
+                                    'src' => 'rotari.jpeg',
+                                    'label' => 'Gbr. 01',
+                                    'caption' => 'Rotary Dryer — Workshop Bandung',
+                                ],
+                                [
+                                    'src' => 'WoodPelet.jpeg',
+                                    'label' => 'Gbr. 02',
+                                    'caption' => 'Mesin Wood Pelet — Produksi Lokal',
+                                ],
+                                [
+                                    'src' => 'hammermil.jpeg',
+                                    'label' => 'Gbr. 03',
+                                    'caption' => 'Hammer Mill — Fabrikasi CV Adzra',
+                                ],
+                                [
+                                    'src' => 'testbattery.jpeg',
+                                    'label' => 'Gbr. 04',
+                                    'caption' => 'Battery Test — Quality Control',
+                                ],
+                            ];
+                        @endphp
+
+                        @foreach ($heroSlides as $i => $slide)
+                            <img src="{{ asset($slide['src']) }}" alt="{{ $slide['caption'] }}"
+                                class="hero-slide absolute inset-0 h-full w-full object-cover transition-opacity duration-700 {{ $i === 0 ? 'opacity-100' : 'opacity-0' }}"
+                                data-index="{{ $i }}">
+                        @endforeach
+
+                        {{-- crosshair registrasi --}}
                         <svg class="pointer-events-none absolute left-3 top-3 hidden h-4 w-4 text-white/50 sm:block"
                             viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1">
                             <path d="M8 0v6M8 10v6M0 8h6M10 8h16" />
@@ -59,20 +86,30 @@
                             <path d="M8 0v6M8 10v6M0 8h6M10 8h16" />
                         </svg>
 
-                        {{-- tag kop gambar --}}
-                        <div
-                            class="absolute bottom-3 left-3 rounded border border-white/15 bg-steel-900/85 px-3 py-1.5 backdrop-blur">
-                            <p class="font-mono text-[9px] uppercase tracking-widest text-amber-500">Rotary Dryer 01</p>
-                            <p class="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-steel-300">Workshop —
-                                Bandung</p>
+                        {{-- tag kop gambar — update per slide --}}
+                        <div id="hero-tag"
+                            class="absolute bottom-3 left-3 rounded border border-white/15 bg-steel-900/85 px-3 py-1.5 backdrop-blur transition-opacity duration-500">
+                            <p id="hero-tag-label" class="font-mono text-[9px] uppercase tracking-widest text-amber-500">
+                                {{ $heroSlides[0]['label'] }}</p>
+                            <p id="hero-tag-caption"
+                                class="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-steel-300">
+                                {{ $heroSlides[0]['caption'] }}</p>
+                        </div>
+
+                        {{-- dots --}}
+                        <div class="absolute bottom-3 right-3 flex items-center gap-1.5 sm:bottom-auto sm:top-3 sm:right-3">
+                            @foreach ($heroSlides as $i => $slide)
+                                <button type="button" data-hero-dot="{{ $i }}"
+                                    class="h-1.5 rounded-full transition-all duration-300 {{ $i === 0 ? 'w-5 bg-amber-500' : 'w-1.5 bg-white/40' }}"></button>
+                            @endforeach
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- strip statistik full-width, jadi pemisah yang lega antara hero dan konten --}}
-        <div class="border-t border-white/10">
+        {{-- strip statistik full-width --}}
+        <div class="hero-anim hero-anim-delay-5 border-t border-white/10">
             <div class="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-white/10 px-4 sm:px-6 lg:px-8">
                 <div class="py-5 text-center sm:py-6 sm:text-left">
                     <p class="font-mono text-[10px] uppercase tracking-widest text-steel-400 sm:text-xs">Berdiri</p>
@@ -93,7 +130,7 @@
     <section class="bg-paper-100 py-16 sm:py-24">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
-                <div>
+                <div class="anim anim-fade-up">
                     <p class="label-mono">Profil Perusahaan</p>
                     <h2 class="mt-3 font-display text-2xl font-bold text-graphite-900 sm:text-3xl">
                         Tentang CV Adzra Engineering
@@ -110,25 +147,25 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="plate rounded p-5">
+                    <div class="plate anim anim-fade-up anim-delay-1 rounded p-5">
                         <span class="plate-corner-bl"></span>
                         <span class="plate-corner-br"></span>
                         <p class="font-display text-3xl font-bold text-steel-700">01</p>
                         <p class="mt-3 text-sm font-medium text-graphite-900">Fabrikasi mesin custom sesuai spesifikasi</p>
                     </div>
-                    <div class="plate rounded p-5">
+                    <div class="plate anim anim-fade-up anim-delay-2 rounded p-5">
                         <span class="plate-corner-bl"></span>
                         <span class="plate-corner-br"></span>
                         <p class="font-display text-3xl font-bold text-steel-700">02</p>
                         <p class="mt-3 text-sm font-medium text-graphite-900">Material berkualitas, pengerjaan presisi</p>
                     </div>
-                    <div class="plate rounded p-5">
+                    <div class="plate anim anim-fade-up anim-delay-3 rounded p-5">
                         <span class="plate-corner-bl"></span>
                         <span class="plate-corner-br"></span>
                         <p class="font-display text-3xl font-bold text-steel-700">03</p>
                         <p class="mt-3 text-sm font-medium text-graphite-900">Konsultasi dan layanan purna jual</p>
                     </div>
-                    <div class="plate rounded p-5">
+                    <div class="plate anim anim-fade-up anim-delay-4 rounded p-5">
                         <span class="plate-corner-bl"></span>
                         <span class="plate-corner-br"></span>
                         <p class="font-display text-3xl font-bold text-steel-700">04</p>
@@ -142,7 +179,7 @@
     {{-- PRODUCTS --}}
     <section class="bg-white py-16 sm:py-24">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex items-end justify-between gap-4">
+            <div class="anim anim-fade-up flex items-end justify-between gap-4">
                 <div>
                     <p class="label-mono">Katalog Mesin</p>
                     <h2 class="mt-3 font-display text-2xl font-bold text-graphite-900 sm:text-3xl">Produk Unggulan</h2>
@@ -161,16 +198,20 @@
                 <div class="mt-10 grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
                     @foreach ($featuredProducts as $product)
                         <a href="{{ route('products.show', $product->slug) }}"
-                            class="group block overflow-hidden rounded border border-line-200 transition hover:shadow-md active:shadow-md">
-                            <div class="aspect-[4/3] overflow-hidden bg-paper-100">
+                            class="group anim anim-fade-up anim-delay-{{ $loop->iteration }} block overflow-hidden rounded border border-line-200 transition hover:shadow-md active:shadow-md">
+                            <div class="relative aspect-[4/3] overflow-hidden bg-paper-100">
                                 @if ($product->primaryImage())
                                     <img src="{{ asset('storage/' . $product->primaryImage()->image_path) }}"
                                         alt="{{ $product->name }}"
-                                        class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                                        class="img-load h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                        onload="this.classList.add('loaded')">
+                                    <div class="skeleton absolute inset-0"></div>
                                 @else
-                                    <div
-                                        class="flex h-full items-center justify-center font-display text-sm font-semibold text-graphite-500">
-                                        {{ $product->name }}
+                                    <div class="img-placeholder h-full w-full">
+                                        <svg class="h-8 w-8 text-graphite-500/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V5.25a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v14.25a1.5 1.5 0 001.5 1.5z"/>
+                                        </svg>
+                                        <span class="font-mono text-[10px] uppercase tracking-widest text-graphite-500/60">{{ $product->category?->name ?? 'Produk' }}</span>
                                     </div>
                                 @endif
                             </div>
@@ -202,7 +243,7 @@
     {{-- SERVICES --}}
     <section class="bg-paper-100 py-16 sm:py-24">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex items-end justify-between gap-4">
+            <div class="anim anim-fade-up flex items-end justify-between gap-4">
                 <div>
                     <p class="label-mono">Layanan Kami</p>
                     <h2 class="mt-3 font-display text-2xl font-bold text-graphite-900 sm:text-3xl">Layanan &amp; Jasa
@@ -221,7 +262,7 @@
             @else
                 <div class="mt-10">
                     @foreach ($services as $service)
-                        <div class="group relative flex items-start gap-6 pb-10 last:pb-0">
+                        <div class="group anim anim-fade-up anim-delay-{{ min($loop->iteration, 4) }} relative flex items-start gap-6 pb-10 last:pb-0">
                             {{-- garis penghubung vertikal --}}
                             @if (!$loop->last)
                                 <div class="absolute left-5 top-12 bottom-0 w-px bg-line-200"></div>
@@ -282,7 +323,7 @@
 
     {{-- CTA --}}
     <section class="bg-steel-900 py-16 text-center text-white sm:py-24">
-        <div class="mx-auto max-w-2xl px-4 sm:px-6">
+        <div class="anim anim-scale-in mx-auto max-w-2xl px-4 sm:px-6">
             <h2 class="font-display text-2xl font-bold sm:text-3xl">Butuh Mesin Sesuai Kebutuhan Anda?</h2>
             <p class="mt-4 text-sm text-steel-400 sm:text-base">
                 Konsultasikan kebutuhan fabrikasi mesin Anda langsung dengan tim kami.
@@ -297,4 +338,65 @@
             </a>
         </div>
     </section>
+
+    <script>
+        (function() {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('[data-hero-dot]');
+            const tagLabel = document.getElementById('hero-tag-label');
+            const tagCaption = document.getElementById('hero-tag-caption');
+            if (!slides.length || !dots.length) return;
+
+            const data = [{
+                    label: 'Gbr. 01',
+                    caption: 'Rotary Dryer — Workshop Bandung'
+                },
+                {
+                    label: 'Gbr. 02',
+                    caption: 'Mesin Wood Pelet — Produksi Lokal'
+                },
+                {
+                    label: 'Gbr. 03',
+                    caption: 'Hammer Mill — Fabrikasi CV Adzra'
+                },
+                {
+                    label: 'Gbr. 04',
+                    caption: 'Battery Test — Quality Control'
+                },
+            ];
+            let current = 0;
+            let timer;
+
+            function goTo(index) {
+                current = index;
+                slides.forEach((s, i) => {
+                    s.style.opacity = i === current ? '1' : '0';
+                });
+                dots.forEach((d, i) => {
+                    d.className = 'h-1.5 rounded-full transition-all duration-300 ' +
+                        (i === current ? 'w-5 bg-amber-500' : 'w-1.5 bg-white/40');
+                });
+                tagLabel.textContent = data[current].label;
+                tagCaption.textContent = data[current].caption;
+            }
+
+            function next() {
+                goTo((current + 1) % slides.length);
+            }
+
+            dots.forEach((d, i) => {
+                d.addEventListener('click', () => {
+                    goTo(i);
+                    resetTimer();
+                });
+            });
+
+            function resetTimer() {
+                clearInterval(timer);
+                timer = setInterval(next, 4000);
+            }
+
+            resetTimer();
+        })();
+    </script>
 @endsection

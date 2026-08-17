@@ -1,5 +1,4 @@
 @php
-    // TODO: pindahkan ke tabel `testimonials` + controller kalau sudah ada data asli.
     $testimonials = [
         [
             'name' => 'Yusuf Hidayat',
@@ -36,18 +35,19 @@
 
 <section class="bg-white py-16 sm:py-24">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p class="label-mono">Testimoni</p>
-        <h2 class="mt-3 font-display text-2xl font-bold text-graphite-900 sm:text-3xl">
+        <p class="anim anim-fade-up label-mono">Testimoni</p>
+        <h2 class="anim anim-fade-up anim-delay-1 mt-3 font-display text-2xl font-bold text-graphite-900 sm:text-3xl">
             Dipercaya Tim Produksi di Berbagai Skala Usaha
         </h2>
     </div>
 
     <div class="relative mt-10">
         <div id="testimonial-track"
-            class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:gap-6 sm:px-6 lg:px-8">
+            class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:gap-6 sm:px-6 lg:px-8"
+            style="scroll-behavior: smooth;">
             @foreach ($testimonials as $t)
                 <article
-                    class="testimonial-card shrink-0 snap-start rounded border border-line-200 bg-paper-100 p-6 sm:p-8">
+                    class="w-[85vw] shrink-0 snap-start rounded border border-line-200 bg-paper-100 p-6 sm:w-[calc((100%-3rem)/3)] sm:p-8">
                     <span class="font-display text-4xl leading-none text-amber-600/40">&ldquo;</span>
                     <p class="mt-3 min-h-[4.5rem] text-sm leading-relaxed text-graphite-900 sm:text-base">
                         {{ $t['quote'] }}
@@ -86,14 +86,6 @@
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
-    .testimonial-card {
-        width: 85vw;
-    }
-    @media (min-width: 640px) {
-        .testimonial-card {
-            flex: 0 0 calc((100% - 3rem) / 3);
-        }
-    }
 </style>
 
 <script>
@@ -104,22 +96,22 @@
     const dotsWrap = document.getElementById('testimonial-dots');
     if (!track || !prevBtn || !nextBtn || !dotsWrap) return;
 
-    const cards = Array.from(track.querySelectorAll('.testimonial-card'));
+    const cards = track.querySelectorAll('article');
     const total = cards.length;
     let current = 0;
-    let visibleCount = 3;
+    let userScrolled = false;
 
-    function calcVisible() {
-        return window.innerWidth >= 640 ? 3 : 1;
+    function getVisible() {
+        return window.matchMedia('(min-width: 640px)').matches ? 3 : 1;
     }
 
-    function totalPositions() {
-        return total - visibleCount + 1;
+    function getPositions() {
+        return total - getVisible() + 1;
     }
 
     function buildDots() {
         dotsWrap.innerHTML = '';
-        const positions = totalPositions();
+        const positions = getPositions();
         for (let i = 0; i < positions; i++) {
             const dot = document.createElement('span');
             dot.className = 'h-1.5 rounded-full transition-all duration-200 ' +
@@ -129,10 +121,8 @@
     }
 
     function update() {
-        const positions = totalPositions();
-        if (current >= positions) current = positions - 1;
-        if (current < 0) current = 0;
-
+        const positions = getPositions();
+        current = Math.max(0, Math.min(current, positions - 1));
         const dots = dotsWrap.querySelectorAll('span');
         dots.forEach((d, i) => {
             d.className = 'h-1.5 rounded-full transition-all duration-200 ' +
@@ -143,26 +133,40 @@
     }
 
     function scrollTo(index) {
-        const positions = totalPositions();
+        const positions = getPositions();
         current = Math.max(0, Math.min(index, positions - 1));
         cards[current].scrollIntoView({ inline: 'start', block: 'nearest', behavior: 'smooth' });
         update();
     }
 
-    prevBtn.addEventListener('click', () => scrollTo(current - 1));
-    nextBtn.addEventListener('click', () => scrollTo(current + 1));
+    prevBtn.addEventListener('click', () => { userScrolled = true; scrollTo(current - 1); });
+    nextBtn.addEventListener('click', () => { userScrolled = true; scrollTo(current + 1); });
+
+    let scrollTimer;
+    track.addEventListener('scroll', () => {
+        if (!userScrolled) { userScrolled = true; return; }
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => {
+            const scrollLeft = track.scrollLeft;
+            const gap = parseFloat(getComputedStyle(track).gap) || 16;
+            const cardWidth = cards[0].offsetWidth + gap;
+            const idx = Math.round(scrollLeft / cardWidth);
+            const visible = getVisible();
+            const maxIdx = total - visible;
+            current = Math.max(0, Math.min(idx, maxIdx));
+            update();
+        }, 80);
+    }, { passive: true });
 
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
-            visibleCount = calcVisible();
             buildDots();
             update();
         }, 150);
     });
 
-    visibleCount = calcVisible();
     buildDots();
     update();
 })();

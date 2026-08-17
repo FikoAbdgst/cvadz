@@ -20,11 +20,17 @@
                         $active = $images->firstWhere('is_primary', true) ?? $images->first();
                     @endphp
 
-                    <div class="aspect-[4/3] overflow-hidden rounded border border-line-200 bg-paper-100" id="gallery-main">
+                    <div class="relative aspect-[4/3] overflow-hidden rounded border border-line-200 bg-paper-100" id="gallery-main">
                         @if ($active)
-                            <img src="{{ asset('storage/'.$active->image_path) }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
+                            <img src="{{ asset('storage/'.$active->image_path) }}" alt="{{ $product->name }}" class="img-load h-full w-full object-cover" onload="this.classList.add('loaded')">
+                            <div class="skeleton absolute inset-0 rounded"></div>
                         @else
-                            <div class="flex h-full items-center justify-center font-display text-graphite-500">Belum ada gambar</div>
+                            <div class="img-placeholder h-full w-full rounded">
+                                <svg class="h-12 w-12 text-graphite-500/30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V5.25a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v14.25a1.5 1.5 0 001.5 1.5z"/>
+                                </svg>
+                                <span class="font-mono text-xs uppercase tracking-widest text-graphite-500/50">Belum ada gambar</span>
+                            </div>
                         @endif
                     </div>
 
@@ -134,11 +140,17 @@
                             <a href="{{ route('products.show', $product->slug) }}" class="plate group block rounded transition hover:shadow-sm">
                                 <span class="plate-corner-bl"></span>
                                 <span class="plate-corner-br"></span>
-                                <div class="aspect-[4/3] overflow-hidden bg-paper-100">
+                                <div class="relative aspect-[4/3] overflow-hidden bg-paper-100">
                                     @if ($product->primaryImage())
-                                        <img src="{{ asset('storage/'.$product->primaryImage()->image_path) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                                        <img src="{{ asset('storage/'.$product->primaryImage()->image_path) }}" alt="{{ $product->name }}" class="img-load h-full w-full object-cover transition duration-300 group-hover:scale-105" onload="this.classList.add('loaded')">
+                                        <div class="skeleton absolute inset-0"></div>
                                     @else
-                                        <div class="flex h-full items-center justify-center font-display text-sm font-semibold text-graphite-500">{{ $product->name }}</div>
+                                        <div class="img-placeholder h-full w-full">
+                                            <svg class="h-8 w-8 text-graphite-500/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V5.25a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v14.25a1.5 1.5 0 001.5 1.5z"/>
+                                            </svg>
+                                            <span class="font-mono text-[10px] uppercase tracking-widest text-graphite-500/60">{{ $product->category?->name ?? 'Produk' }}</span>
+                                        </div>
                                     @endif
                                 </div>
                                 <div class="p-5">

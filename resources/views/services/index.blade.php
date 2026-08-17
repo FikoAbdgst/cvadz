@@ -5,9 +5,9 @@
 @section('content')
     <section class="hero-glow relative overflow-hidden pt-32 pb-16 text-white">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <p class="label-mono text-amber-600">Layanan Kami</p>
-            <h1 class="mt-3 font-display text-4xl font-bold">Katalog Layanan</h1>
-            <p class="mt-3 max-w-2xl text-steel-400">
+            <p class="hero-anim hero-anim-delay-1 label-mono text-amber-600">Layanan Kami</p>
+            <h1 class="hero-anim hero-anim-delay-2 mt-3 font-display text-4xl font-bold">Katalog Layanan</h1>
+            <p class="hero-anim hero-anim-delay-3 mt-3 max-w-2xl text-steel-400">
                 Dari mesin custom hingga perawatan berkala — setiap layanan dikerjakan langsung oleh teknisi CV Adzra Engineering. Hubungi kami via WhatsApp untuk konsultasi gratis.
             </p>
         </div>
@@ -25,7 +25,7 @@
             @else
                 <div class="grid gap-6 sm:grid-cols-2">
                     @foreach ($services as $service)
-                        <div class="plate flex flex-col rounded bg-white p-6">
+                        <div class="plate group anim anim-fade-up anim-delay-{{ min($loop->iteration, 4) }} flex flex-col rounded bg-white p-6">
                             <span class="plate-corner-bl"></span>
                             <span class="plate-corner-br"></span>
 
