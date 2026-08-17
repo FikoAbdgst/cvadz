@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Staff;
 
-use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\TransactionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\StaffTransactionRequest;
@@ -17,6 +17,14 @@ class TransactionController extends Controller
 {
     public function index(Request $request): View
     {
+        $tab = $request->query('tab') === 'transaksi' ? 'transaksi' : 'pesanan';
+
+        $paidOrders = Order::with(['customer', 'product', 'service', 'transactions'])
+            ->whereIn('payment_status', [PaymentStatus::DP, PaymentStatus::Lunas])
+            ->where('status', '!=', 'batal')
+            ->latest()
+            ->get();
+
         $query = Transaction::with('order.customer', 'order.product', 'order.service', 'staffUser');
 
         if ($orderId = $request->integer('order_id')) {
@@ -30,33 +38,13 @@ class TransactionController extends Controller
         $transactions = $query->latest('transaction_date')->latest('id')->paginate(15)->withQueryString();
 
         return view('staff.transactions.index', [
+            'tab' => $tab,
+            'paidOrders' => $paidOrders,
             'transactions' => $transactions,
             'statuses' => TransactionStatus::cases(),
             'orderId' => $orderId,
             'statusFilter' => $request->input('status'),
         ]);
-    }
-
-    public function create(Request $request): View
-    {
-        return view('staff.transactions.create', [
-            'orders' => Order::with(['customer', 'product', 'service'])
-                ->orderByDesc('created_at')
-                ->get(),
-            'statuses' => TransactionStatus::cases(),
-            'preselectedOrder' => $request->integer('order_id'),
-        ]);
-    }
-
-    public function store(StaffTransactionRequest $request): RedirectResponse
-    {
-        $transaction = Transaction::create($request->validated() + ['staff_user_id' => auth()->id()]);
-
-        $this->completeOrderIfLunas($transaction, $request->status);
-        $this->recordPaymentCashbook($transaction);
-
-        return redirect()->route('staff.transactions.invoice', $transaction)
-            ->with('success', 'Pembayaran berhasil dicatat.');
     }
 
     public function edit(Transaction $transaksi): View
@@ -72,21 +60,40 @@ class TransactionController extends Controller
     public function update(StaffTransactionRequest $request, Transaction $transaksi): RedirectResponse
     {
         $transaksi->update($request->validated());
-
-        $this->completeOrderIfLunas($transaksi, $request->status);
         $this->syncPaymentCashbook($transaksi);
+        $this->syncOrderFromTransaction($transaksi);
 
-        return redirect()->route('staff.transactions.index')
+        return redirect()->route('staff.transactions.index', ['tab' => 'transaksi'])
             ->with('success', 'Transaksi #'.$transaksi->id.' berhasil diperbarui.');
     }
 
     public function destroy(Transaction $transaksi): RedirectResponse
     {
         Cashbook::where('transaction_id', $transaksi->id)->delete();
+        $order = $transaksi->order;
         $transaksi->delete();
 
-        return redirect()->route('staff.transactions.index')
+        if ($order) {
+            $order->update([
+                'payment_status' => PaymentStatus::BelumBayar,
+                'payment_amount' => null,
+                'payment_type' => null,
+                'payment_date' => null,
+            ]);
+        }
+
+        return redirect()->route('staff.transactions.index', ['tab' => 'transaksi'])
             ->with('success', 'Transaksi berhasil dihapus.');
+    }
+
+    public function verify(Transaction $transaksi): RedirectResponse
+    {
+        $transaksi->update(['status' => TransactionStatus::Lunas]);
+        $this->syncPaymentCashbook($transaksi);
+        $this->syncOrderFromTransaction($transaksi);
+
+        return redirect()->route('staff.transactions.index', ['tab' => 'pesanan'])
+            ->with('success', 'Pembayaran #'.$transaksi->order_id.' terverifikasi sebagai Lunas.');
     }
 
     public function invoice(Transaction $transaksi): View
@@ -96,49 +103,35 @@ class TransactionController extends Controller
         return view('staff.transactions.invoice', ['transaction' => $transaksi]);
     }
 
-    /**
-     * Mark the order as selesai when a full payment is recorded.
-     */
-    private function completeOrderIfLunas(Transaction $transaction, string $status): void
-    {
-        $order = $transaction->order;
-
-        if ($status === TransactionStatus::Lunas->value && $order && $order->status !== OrderStatus::Batal) {
-            $order->update(['status' => OrderStatus::Selesai]);
-        }
-    }
-
-    /**
-     * Insert the matching pemasukan row for a new payment.
-     */
-    private function recordPaymentCashbook(Transaction $transaction): void
-    {
-        Cashbook::create([
-            'type' => 'pemasukan',
-            'amount' => $transaction->amount,
-            'description' => $this->paymentDescription($transaction),
-            'transaction_date' => $transaction->transaction_date,
-            'user_id' => auth()->id(),
-            'transaction_id' => $transaction->id,
-        ]);
-    }
-
-    /**
-     * Keep the linked pemasukan row in sync when a payment is corrected.
-     */
     private function syncPaymentCashbook(Transaction $transaction): void
     {
+        $order = $transaction->order;
+        $description = 'Pembayaran #'.$order?->id.' — '.($order?->customer?->name ?? 'Pesanan').' ('.$transaction->status->label().')';
+
         Cashbook::where('transaction_id', $transaction->id)->update([
             'amount' => $transaction->amount,
-            'description' => $this->paymentDescription($transaction),
+            'description' => $description,
             'transaction_date' => $transaction->transaction_date,
         ]);
     }
 
-    private function paymentDescription(Transaction $transaction): string
+    private function syncOrderFromTransaction(Transaction $transaction): void
     {
         $order = $transaction->order;
 
-        return 'Pembayaran #'.$order?->id.' — '.($order?->customer?->name ?? 'Pesanan').' ('.$transaction->status->label().')';
+        if (! $order) {
+            return;
+        }
+
+        $paymentStatus = $transaction->status === TransactionStatus::Lunas
+            ? PaymentStatus::Lunas
+            : PaymentStatus::DP;
+
+        $order->update([
+            'payment_status' => $paymentStatus,
+            'payment_amount' => $transaction->amount,
+            'payment_type' => $transaction->payment_type,
+            'payment_date' => $transaction->transaction_date,
+        ]);
     }
 }

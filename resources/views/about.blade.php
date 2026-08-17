@@ -11,7 +11,7 @@
         </div>
     </section>
 
-    <section class="bg-white py-16">
+    <section class="bg-paper-100 py-16 sm:py-24">
         <div class="mx-auto max-w-3xl space-y-8 px-4 text-graphite-500 sm:px-6">
             <div>
                 <h2 class="font-display text-2xl font-bold text-graphite-900">Profil Perusahaan</h2>

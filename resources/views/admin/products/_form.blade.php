@@ -36,7 +36,7 @@
 
             <div>
                 <label for="price" class="block text-sm font-medium text-graphite-900">Harga (Rp) <span class="text-graphite-500">(kosongkan jika belum tahu)</span></label>
-                <input type="number" step="0.01" min="0" id="price" name="price" value="{{ old('price', $product->price ?? '') }}"
+                <input type="text" inputmode="numeric" id="price" name="price" value="{{ old('price', isset($product) && $product->price !== null ? number_format((float) $product->price, 0, ',', '.') : '') }}" data-rupiah
                        class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
             </div>
 

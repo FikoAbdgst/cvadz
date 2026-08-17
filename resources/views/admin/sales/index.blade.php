@@ -100,13 +100,13 @@
             <div class="flex flex-col gap-3 border-b border-line-200 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex flex-wrap items-center gap-2">
                     <a href="{{ route('admin.sales.index', array_filter(['tab' => 'pemesanan', 'customer' => $customerId])) }}"
-                       class="rounded-full border px-4 py-1.5 text-sm font-medium transition {{ blank($status) ? 'border-steel-700 bg-steel-700 text-white' : 'border-line-200 bg-white text-graphite-500 hover:text-steel-700' }}">
+                       class="rounded-full border px-4 py-1.5 text-sm font-medium transition {{ blank($paymentStatus) ? 'border-steel-700 bg-steel-700 text-white' : 'border-line-200 bg-white text-graphite-500 hover:text-steel-700' }}">
                         Semua
                     </a>
-                    @foreach ($statuses as $statusOption)
-                        <a href="{{ route('admin.sales.index', array_filter(['tab' => 'pemesanan', 'status' => $statusOption->value, 'customer' => $customerId])) }}"
-                           class="rounded-full border px-4 py-1.5 text-sm font-medium transition {{ $status === $statusOption->value ? 'border-steel-700 bg-steel-700 text-white' : 'border-line-200 bg-white text-graphite-500 hover:text-steel-700' }}">
-                            {{ $statusOption->label() }}
+                    @foreach ($paymentStatuses as $ps)
+                        <a href="{{ route('admin.sales.index', array_filter(['tab' => 'pemesanan', 'payment_status' => $ps->value, 'customer' => $customerId])) }}"
+                           class="rounded-full border px-4 py-1.5 text-sm font-medium transition {{ $paymentStatus === $ps->value ? 'border-steel-700 bg-steel-700 text-white' : 'border-line-200 bg-white text-graphite-500 hover:text-steel-700' }}">
+                            {{ $ps->label() }}
                         </a>
                     @endforeach
                 </div>
@@ -131,9 +131,9 @@
                             <th class="px-6 py-3">Produk / Layanan</th>
                             <th class="px-6 py-3">Qty</th>
                             <th class="px-6 py-3">Total</th>
-                            <th class="px-6 py-3">Tanggal</th>
-                            <th class="px-6 py-3">Transaksi</th>
-                            <th class="px-6 py-3">Status</th>
+                            <th class="px-6 py-3">Pembayaran</th>
+                            <th class="px-6 py-3">Pekerjaan</th>
+                            <th class="px-6 py-3">Bukti</th>
                             <th class="px-6 py-3 text-right">Aksi</th>
                         </tr>
                     </thead>
@@ -144,14 +144,15 @@
                                 <td class="px-6 py-3 text-graphite-500">{{ $order->itemLabel() }}</td>
                                 <td class="px-6 py-3 text-graphite-500">{{ $order->quantity }}</td>
                                 <td class="px-6 py-3 text-graphite-500">{{ $order->total ? 'Rp '.number_format((float) $order->total, 0, ',', '.') : '—' }}</td>
-                                <td class="px-6 py-3 text-graphite-500">{{ $order->created_at->format('d M Y') }}</td>
                                 <td class="px-6 py-3">
-                                    @if ($order->transactions_count)
-                                        <a href="{{ route('admin.sales.index', ['tab' => 'transaksi', 'order' => $order->id]) }}"
-                                           class="font-medium text-steel-700 hover:underline">{{ $order->transactions_count }} transaksi</a>
-                                        <span class="block text-xs text-graphite-500">Rp {{ number_format((float) ($order->transactions_sum_amount ?? 0), 0, ',', '.') }}</span>
-                                    @else
-                                        <span class="text-graphite-500">—</span>
+                                    <span class="rounded-full px-3 py-1 text-xs font-medium
+                                        {{ ($order->payment_status?->value ?? 'belum') === 'lunas' ? 'bg-green-100 text-green-700' : '' }}
+                                        {{ ($order->payment_status?->value ?? 'belum') === 'dp' ? 'bg-amber-100 text-amber-700' : '' }}
+                                        {{ ($order->payment_status?->value ?? 'belum') === 'belum' ? 'bg-gray-100 text-gray-500' : '' }}">
+                                        {{ $order->payment_status?->label() ?? 'Belum Bayar' }}
+                                    </span>
+                                    @if ($order->payment_amount)
+                                        <span class="block text-xs text-graphite-500">Rp {{ number_format((float) $order->payment_amount, 0, ',', '.') }}</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-3">
@@ -164,8 +165,17 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-3">
-                                        <div class="flex flex-wrap justify-end gap-2">
-                                        <a href="{{ route('admin.orders.edit', $order) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Ubah Status</a>
+                                    @if ($order->proofUrl())
+                                        <a href="{{ $order->proofUrl() }}" target="_blank" class="text-steel-700 hover:underline">
+                                            <img src="{{ $order->proofUrl() }}" alt="Bukti" class="h-8 rounded border border-line-200 object-cover">
+                                        </a>
+                                    @else
+                                        <span class="text-graphite-500">—</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-3">
+                                    <div class="flex flex-wrap justify-end gap-2">
+                                        <a href="{{ route('admin.orders.edit', $order) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Edit</a>
                                         <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" onsubmit="return confirm('Yakin ingin menghapus pemesanan ini? Transaksi terkait ikut terhapus.')">
                                             @csrf
                                             @method('DELETE')
@@ -204,7 +214,7 @@
                         </a>
                     @endforeach
                 </div>
-                <p class="text-sm text-graphite-500">Monitoring — pembayaran dicatat & dikoreksi oleh staff.</p>
+                <p class="text-sm text-graphite-500">Monitoring — pembayaran dicatat oleh admin di form pemesanan.</p>
             </div>
 
             @if ($activeOrder)

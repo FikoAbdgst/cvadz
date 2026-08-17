@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\OrderStatus;
 use App\Enums\TransactionStatus;
 use App\Models\Category;
 use App\Models\Order;
@@ -99,19 +98,24 @@ class AdminCrudTest extends TestCase
         $this->assertDatabaseHas('product_images', ['product_id' => $product->id, 'is_primary' => true]);
     }
 
-    public function test_admin_can_update_order_status(): void
+    public function test_admin_can_update_order_payment(): void
     {
         $this->actingAs($this->admin());
-        $order = Order::factory()->create(['status' => OrderStatus::Pending]);
+        $order = Order::factory()->create(['payment_status' => 'belum']);
 
         $this->put(route('admin.orders.update', $order), [
             'customer_id' => $order->customer_id,
             'product_id' => $order->product_id,
             'quantity' => $order->quantity,
-            'status' => OrderStatus::Diproses->value,
+            'payment_status' => 'lunas',
+            'payment_amount' => 15000000,
+            'payment_type' => 'transfer',
+            'payment_date' => now()->toDateString(),
         ])->assertRedirect(route('admin.sales.index', ['tab' => 'pemesanan']));
 
-        $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'diproses']);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'payment_status' => 'lunas']);
+        $this->assertDatabaseHas('transactions', ['order_id' => $order->id, 'amount' => 15000000]);
+        $this->assertDatabaseHas('cashbooks', ['type' => 'pemasukan']);
     }
 
     public function test_admin_transactions_tab_is_monitoring_only(): void

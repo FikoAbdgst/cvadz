@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Attendance;
 use App\Models\Cashbook;
+use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Transaction;
@@ -38,11 +39,8 @@ class StaffPanelTest extends TestCase
     {
         $this->actingAs($this->staff());
 
-        $order = Order::factory()->create(['status' => 'pending']);
-
         $this->get(route('staff.dashboard'))
             ->assertOk()
-            ->assertSee($order->customer->name)
             ->assertSee('Dashboard Operasional');
     }
 
@@ -64,62 +62,11 @@ class StaffPanelTest extends TestCase
             ->assertSessionHas('error');
     }
 
-    public function test_staff_full_payment_completes_order_and_records_cashbook(): void
-    {
-        $staff = $this->staff();
-        $this->actingAs($staff);
-
-        $order = Order::factory()->create(['status' => 'pending']);
-
-        $response = $this->post(route('staff.transactions.store'), [
-            'order_id' => $order->id,
-            'amount' => 15000000,
-            'payment_type' => 'transfer',
-            'transaction_date' => now()->toDateString(),
-            'status' => 'lunas',
-        ]);
-
-        $transaction = Transaction::where('order_id', $order->id)->firstOrFail();
-
-        $response->assertRedirect(route('staff.transactions.invoice', $transaction));
-
-        $this->assertEquals('lunas', $transaction->status->value);
-        $this->assertEquals($staff->id, $transaction->staff_user_id);
-        $this->assertEquals('selesai', $order->fresh()->status->value);
-
-        $this->assertDatabaseHas('cashbooks', [
-            'type' => 'pemasukan',
-            'amount' => 15000000,
-            'user_id' => $staff->id,
-        ]);
-    }
-
-    public function test_staff_partial_payment_keeps_order_status(): void
-    {
-        $this->actingAs($this->staff());
-
-        $order = Order::factory()->create(['status' => 'pending']);
-
-        $this->post(route('staff.transactions.store'), [
-            'order_id' => $order->id,
-            'amount' => 5000000,
-            'payment_type' => 'tunai',
-            'transaction_date' => now()->toDateString(),
-            'status' => 'belum_lunas',
-        ])->assertRedirect();
-
-        $this->assertEquals('pending', $order->fresh()->status->value);
-        $this->assertDatabaseHas('cashbooks', [
-            'type' => 'pemasukan',
-            'amount' => 5000000,
-        ]);
-    }
-
     public function test_staff_can_view_invoice(): void
     {
         $this->actingAs($this->staff());
 
-        $order = Order::factory()->create();
+        $order = Order::factory()->create(['payment_status' => 'lunas']);
         $transaction = Transaction::create([
             'order_id' => $order->id,
             'staff_user_id' => $this->staff()->id,
@@ -301,58 +248,12 @@ class StaffPanelTest extends TestCase
             ->assertSessionHasErrors('check_out');
     }
 
-    public function test_staff_transaction_requires_order(): void
-    {
-        $this->actingAs($this->staff());
-
-        $this->from(route('staff.transactions.create'))
-            ->post(route('staff.transactions.store'), [
-                'amount' => 100000,
-                'payment_type' => 'tunai',
-                'transaction_date' => now()->toDateString(),
-                'status' => 'lunas',
-            ])
-            ->assertSessionHasErrors('order_id');
-    }
-
     public function test_staff_can_edit_transaction_and_cashbook_syncs(): void
     {
         $this->actingAs($this->staff());
 
-        $order = Order::factory()->create(['status' => 'pending']);
+        $order = Order::factory()->create(['payment_status' => 'dp']);
 
-        $this->post(route('staff.transactions.store'), [
-            'order_id' => $order->id,
-            'amount' => 5000000,
-            'payment_type' => 'tunai',
-            'transaction_date' => now()->toDateString(),
-            'status' => 'belum_lunas',
-        ]);
-
-        $transaction = Transaction::where('order_id', $order->id)->firstOrFail();
-        $this->assertDatabaseHas('cashbooks', ['type' => 'pemasukan', 'transaction_id' => $transaction->id, 'amount' => 5000000]);
-
-        $this->put(route('staff.transactions.update', $transaction), [
-            'order_id' => $order->id,
-            'amount' => 8000000,
-            'payment_type' => 'transfer',
-            'transaction_date' => now()->toDateString(),
-            'status' => 'belum_lunas',
-        ])->assertRedirect(route('staff.transactions.index'));
-
-        $this->assertDatabaseHas('transactions', ['id' => $transaction->id, 'amount' => 8000000]);
-        $this->assertDatabaseHas('cashbooks', [
-            'transaction_id' => $transaction->id,
-            'type' => 'pemasukan',
-            'amount' => 8000000,
-        ]);
-    }
-
-    public function test_staff_edit_to_lunas_completes_order(): void
-    {
-        $this->actingAs($this->staff());
-
-        $order = Order::factory()->create(['status' => 'pending']);
         $transaction = Transaction::create([
             'order_id' => $order->id,
             'staff_user_id' => $this->staff()->id,
@@ -362,15 +263,71 @@ class StaffPanelTest extends TestCase
             'status' => 'belum_lunas',
         ]);
 
+        Cashbook::create([
+            'type' => 'pemasukan',
+            'amount' => 5000000,
+            'description' => 'Pembayaran #'.$order->id.' — '.$order->customer->name.' (Belum Lunas)',
+            'transaction_date' => now()->toDateString(),
+            'user_id' => $this->staff()->id,
+            'transaction_id' => $transaction->id,
+        ]);
+
+        $this->assertDatabaseHas('cashbooks', ['type' => 'pemasukan', 'transaction_id' => $transaction->id, 'amount' => 5000000]);
+
         $this->put(route('staff.transactions.update', $transaction), [
             'order_id' => $order->id,
-            'amount' => 15000000,
-            'payment_type' => 'tunai',
+            'amount' => 8000000,
+            'payment_type' => 'transfer',
             'transaction_date' => now()->toDateString(),
-            'status' => 'lunas',
-        ])->assertRedirect(route('staff.transactions.index'));
+            'status' => 'belum_lunas',
+        ])->assertRedirect(route('staff.transactions.index', ['tab' => 'transaksi']));
 
-        $this->assertEquals('selesai', $order->fresh()->status->value);
+        $this->assertDatabaseHas('transactions', ['id' => $transaction->id, 'amount' => 8000000]);
+        $this->assertDatabaseHas('cashbooks', [
+            'transaction_id' => $transaction->id,
+            'type' => 'pemasukan',
+            'amount' => 8000000,
+        ]);
+        $this->assertDatabaseHas('orders', [
+            'id' => $order->id,
+            'payment_status' => 'dp',
+            'payment_amount' => 8000000,
+        ]);
+    }
+
+    public function test_staff_verify_payment_to_lunas(): void
+    {
+        $this->actingAs($this->staff());
+
+        $order = Order::factory()->create(['payment_status' => 'dp', 'status' => 'pending']);
+        $transaction = Transaction::create([
+            'order_id' => $order->id,
+            'staff_user_id' => $this->staff()->id,
+            'amount' => 15000000,
+            'payment_type' => 'transfer',
+            'transaction_date' => now()->toDateString(),
+            'status' => 'belum_lunas',
+        ]);
+
+        Cashbook::create([
+            'type' => 'pemasukan',
+            'amount' => 15000000,
+            'description' => 'Pembayaran #'.$order->id.' — '.$order->customer->name.' (Belum Lunas)',
+            'transaction_date' => now()->toDateString(),
+            'user_id' => $this->staff()->id,
+            'transaction_id' => $transaction->id,
+        ]);
+
+        $this->post(route('staff.transactions.verify', $transaction))
+            ->assertRedirect(route('staff.transactions.index', ['tab' => 'pesanan']));
+
+        $this->assertEquals('lunas', $transaction->fresh()->status->value);
+        $this->assertEquals('lunas', $order->fresh()->payment_status->value);
+
+        $this->assertDatabaseHas('cashbooks', [
+            'transaction_id' => $transaction->id,
+            'amount' => 15000000,
+        ]);
     }
 
     public function test_staff_can_delete_transaction_and_linked_cashbook(): void
@@ -378,7 +335,7 @@ class StaffPanelTest extends TestCase
         $staff = $this->staff();
         $this->actingAs($staff);
 
-        $order = Order::factory()->create();
+        $order = Order::factory()->create(['payment_status' => 'lunas']);
         $transaction = Transaction::create([
             'order_id' => $order->id,
             'staff_user_id' => $staff->id,
@@ -398,9 +355,39 @@ class StaffPanelTest extends TestCase
         ]);
 
         $this->delete(route('staff.transactions.destroy', $transaction))
-            ->assertRedirect(route('staff.transactions.index'));
+            ->assertRedirect(route('staff.transactions.index', ['tab' => 'transaksi']));
 
         $this->assertDatabaseMissing('transactions', ['id' => $transaction->id]);
         $this->assertDatabaseMissing('cashbooks', ['id' => $cashbook->id]);
+        $this->assertDatabaseHas('orders', ['id' => $order->id, 'payment_status' => 'belum']);
+    }
+
+    public function test_staff_transaction_index_lists_paid_orders(): void
+    {
+        $this->actingAs($this->staff());
+
+        $paid = Order::factory()->create(['payment_status' => 'lunas', 'status' => 'pending']);
+        $unpaid = Order::factory()->create(['payment_status' => 'belum', 'status' => 'pending']);
+
+        $this->get(route('staff.transactions.index'))
+            ->assertOk()
+            ->assertSee($paid->customer->name)
+            ->assertDontSee($unpaid->customer->name);
+    }
+
+    public function test_unpaid_order_hidden_from_staff(): void
+    {
+        $this->actingAs($this->staff());
+
+        $dp = Order::factory()->create(['payment_status' => 'dp', 'status' => 'pending']);
+        $belumCustomer = Customer::create(['name' => 'Belum Bayar Test', 'phone' => '0800-0000-000']);
+        $belum = Order::factory()->create(['customer_id' => $belumCustomer->id, 'payment_status' => 'belum', 'status' => 'pending']);
+        $lunas = Order::factory()->create(['payment_status' => 'lunas', 'status' => 'pending']);
+
+        $this->get(route('staff.transactions.index'))
+            ->assertOk()
+            ->assertSee($dp->customer->name)
+            ->assertSee($lunas->customer->name)
+            ->assertDontSee('Belum Bayar Test');
     }
 }

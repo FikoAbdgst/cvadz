@@ -34,13 +34,37 @@
                     <dd class="mt-0.5 font-medium text-graphite-900">{{ $order->total ? 'Rp '.number_format((float) $order->total, 0, ',', '.') : '—' }}</dd>
                 </div>
                 <div>
+                    <dt class="text-graphite-500">Status Pembayaran</dt>
+                    <dd class="mt-0.5">
+                        <span class="rounded-full px-3 py-1 text-xs font-medium
+                            {{ ($order->payment_status?->value ?? 'belum') === 'lunas' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                            {{ $order->payment_status?->label() ?? 'Belum Bayar' }}
+                        </span>
+                        @if ($order->payment_amount)
+                            <span class="ml-1 font-mono text-graphite-500">Rp {{ number_format((float) $order->payment_amount, 0, ',', '.') }}</span>
+                        @endif
+                    </dd>
+                </div>
+                <div>
                     <dt class="text-graphite-500">Tanggal Pesanan</dt>
                     <dd class="mt-0.5 font-medium text-graphite-900">{{ $order->created_at->format('d M Y') }}</dd>
                 </div>
-                <div>
-                    <dt class="text-graphite-500">Selesai Garansi</dt>
-                    <dd class="mt-0.5 font-medium text-graphite-900">{{ $order->warranty_end_date?->format('d M Y') ?? '—' }}</dd>
-                </div>
+                @if ($order->proofUrl())
+                    <div class="sm:col-span-2">
+                        <dt class="text-graphite-500">Bukti Pembayaran</dt>
+                        <dd class="mt-1">
+                            <a href="{{ $order->proofUrl() }}" target="_blank" class="text-steel-700 hover:underline">
+                                <img src="{{ $order->proofUrl() }}" alt="Bukti pembayaran" class="h-24 rounded border border-line-200 object-cover">
+                            </a>
+                        </dd>
+                    </div>
+                @endif
+                @if ($order->hasWarranty())
+                    <div>
+                        <dt class="text-graphite-500">Selesai Garansi</dt>
+                        <dd class="mt-0.5 font-medium text-graphite-900">{{ $order->warranty_end_date->format('d M Y') }}</dd>
+                    </div>
+                @endif
             </dl>
         </div>
 

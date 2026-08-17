@@ -37,9 +37,9 @@
         <div class="flex items-center justify-between border-b border-line-200 px-6 py-4">
             <div>
                 <h2 class="font-display text-lg font-bold text-steel-900">Pesanan Menunggu Diproses</h2>
-                <p class="mt-1 text-sm text-graphite-500">Pesanan yang dibuat oleh Admin dan belum diproses.</p>
+                <p class="mt-1 text-sm text-graphite-500">Pesanan yang sudah dibayar oleh admin dan perlu dikerjakan.</p>
             </div>
-            <a href="{{ route('staff.orders.index', ['status' => 'pending']) }}" class="font-mono text-xs font-semibold uppercase tracking-widest text-steel-700 hover:underline">Lihat semua</a>
+            <a href="{{ route('staff.transactions.index', ['tab' => 'pesanan']) }}" class="font-mono text-xs font-semibold uppercase tracking-widest text-steel-700 hover:underline">Lihat semua</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
@@ -50,29 +50,50 @@
                         <th class="px-6 py-3">Produk / Layanan</th>
                         <th class="px-6 py-3">Qty</th>
                         <th class="px-6 py-3">Total</th>
-                        <th class="px-6 py-3">Tanggal</th>
+                        <th class="px-6 py-3">Bayar</th>
+                        <th class="px-6 py-3">Bukti</th>
                         <th class="px-6 py-3 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($pendingOrders as $order)
+                    @forelse ($paidOrders as $order)
                         <tr class="border-b border-line-200/60">
                             <td class="px-6 py-3 font-mono text-steel-700">#{{ $order->id }}</td>
                             <td class="px-6 py-3 font-medium text-graphite-900">{{ $order->customer?->name }}</td>
                             <td class="px-6 py-3 text-graphite-500">{{ $order->itemLabel() }}</td>
                             <td class="px-6 py-3 text-graphite-500">{{ $order->quantity }}</td>
                             <td class="px-6 py-3 text-graphite-500">{{ $order->total ? 'Rp '.number_format((float) $order->total, 0, ',', '.') : '—' }}</td>
-                            <td class="px-6 py-3 text-graphite-500">{{ $order->created_at->format('d M Y') }}</td>
+                            <td class="px-6 py-3">
+                                <span class="rounded-full px-3 py-1 text-xs font-medium
+                                    {{ ($order->payment_status?->value ?? 'belum') === 'lunas' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                                    {{ $order->payment_status?->label() ?? 'DP' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-3">
+                                @if ($order->proofUrl())
+                                    <a href="{{ $order->proofUrl() }}" target="_blank" class="text-steel-700 hover:underline">
+                                        <img src="{{ $order->proofUrl() }}" alt="Bukti" class="h-8 rounded border border-line-200 object-cover">
+                                    </a>
+                                @else
+                                    <span class="text-graphite-500">—</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-3">
                                 <div class="flex justify-end gap-2">
-                                    <a href="{{ route('staff.transactions.create', ['order_id' => $order->id]) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Proses</a>
+                                    @if (($order->payment_status?->value ?? null) === 'dp' && $order->transactions->first())
+                                        <form method="POST" action="{{ route('staff.transactions.verify', $order->transactions->first()) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" onclick="return confirm('Verifikasi pembayaran ini sebagai LUNAS?')"
+                                                    class="rounded-lg border border-green-600 px-3 py-1.5 text-xs font-semibold text-green-700 transition hover:bg-green-600 hover:text-white">ACC</button>
+                                        </form>
+                                    @endif
                                     <a href="{{ route('staff.orders.edit', $order) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Progress</a>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-graphite-500">Tidak ada pesanan yang menunggu diproses.</td>
+                            <td colspan="8" class="px-6 py-8 text-center text-graphite-500">Tidak ada pesanan yang menunggu diproses.</td>
                         </tr>
                     @endforelse
                 </tbody>

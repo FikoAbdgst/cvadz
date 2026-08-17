@@ -43,7 +43,7 @@
 
             <div>
                 <label for="amount" class="block text-sm font-medium text-graphite-900">Jumlah Pembayaran (Rp)</label>
-                <input type="number" step="0.01" min="1" id="amount" name="amount" value="{{ old('amount', $transaction->amount) }}" required
+                <input type="text" inputmode="numeric" id="amount" name="amount" value="{{ old('amount', number_format((float) $transaction->amount, 0, ',', '.')) }}" data-rupiah required
                        class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
             </div>
 

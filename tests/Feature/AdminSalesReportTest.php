@@ -39,15 +39,24 @@ class AdminSalesReportTest extends TestCase
             'quantity' => 1,
             'total' => 15000000,
             'warranty_end_date' => now()->addMonth()->toDateString(),
-            'status' => 'diproses',
+            'payment_status' => 'lunas',
+            'payment_amount' => 15000000,
+            'payment_type' => 'transfer',
+            'payment_date' => now()->toDateString(),
         ])->assertRedirect(route('admin.sales.index', ['tab' => 'pemesanan']));
 
         $this->assertDatabaseHas('orders', [
             'customer_id' => $customer->id,
             'service_id' => $service->id,
             'total' => 15000000,
+            'payment_status' => 'lunas',
             'admin_user_id' => $admin->id,
         ]);
+        $this->assertDatabaseHas('transactions', [
+            'order_id' => Order::where('customer_id', $customer->id)->first()->id,
+            'amount' => 15000000,
+        ]);
+        $this->assertDatabaseHas('cashbooks', ['type' => 'pemasukan']);
     }
 
     public function test_order_requires_product_or_service(): void
@@ -59,7 +68,7 @@ class AdminSalesReportTest extends TestCase
             ->post(route('admin.orders.store'), [
                 'customer_id' => $customer->id,
                 'quantity' => 1,
-                'status' => 'pending',
+                'payment_status' => 'belum',
             ])
             ->assertSessionHasErrors('item');
     }

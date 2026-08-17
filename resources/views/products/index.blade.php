@@ -9,12 +9,20 @@
             <h1 class="mt-3 font-display text-4xl font-bold">Produk &amp; Sparepart</h1>
             <p class="mt-3 max-w-2xl text-steel-400">Jelajahi mesin industri dan sparepart yang kami sediakan. Hubungi kami via WhatsApp untuk info lebih lanjut.</p>
 
-            <form method="GET" action="{{ route('products.index') }}" class="mt-8 flex flex-col gap-3 sm:flex-row">
-                <input type="search" name="q" value="{{ $search }}" placeholder="Cari mesin..." autocomplete="off"
-                       class="w-full rounded border-0 px-4 py-3 text-sm text-graphite-900 placeholder-graphite-500 focus:outline-none focus:ring-2 focus:ring-steel-400 sm:max-w-sm">
-                <button type="submit" class="rounded bg-amber-600 px-6 py-3 font-mono text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-amber-700">
-                    Cari
-                </button>
+            <form method="GET" action="{{ route('products.index') }}" class="mt-8">
+                <div class="flex items-stretch overflow-hidden rounded border border-steel-400/40 bg-white sm:max-w-md">
+                    <span class="flex items-center pl-4 text-steel-400">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                        </svg>
+                    </span>
+                    <input type="search" name="q" value="{{ $search }}" placeholder="Cari mesin, sparepart..." autocomplete="off"
+                           class="w-full border-0 px-3 py-3 text-sm text-graphite-900 placeholder-graphite-500 focus:outline-none focus:ring-0">
+                    <button type="submit"
+                        class="shrink-0 bg-amber-600 px-5 font-mono text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-amber-700">
+                        Cari
+                    </button>
+                </div>
             </form>
         </div>
     </section>

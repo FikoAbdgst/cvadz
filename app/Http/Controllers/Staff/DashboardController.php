@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Staff;
 
+use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Order;
@@ -13,11 +14,13 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        $pendingOrders = Order::with(['customer', 'product', 'service'])
-            ->where('status', 'pending')
+        $paidOrders = Order::with(['customer', 'product', 'service'])
+            ->whereIn('payment_status', [PaymentStatus::DP, PaymentStatus::Lunas])
+            ->where('status', '!=', 'batal')
             ->latest()
             ->get();
 
+        $pendingCount = $paidOrders->count();
         $inProgressOrders = Order::where('status', 'diproses')->count();
         $todayPresent = Attendance::with('worker')
             ->whereDate('date', now()->toDateString())
@@ -29,8 +32,8 @@ class DashboardController extends Controller
             ->get();
 
         return view('staff.dashboard.index', [
-            'pendingOrders' => $pendingOrders,
-            'pendingCount' => $pendingOrders->count(),
+            'paidOrders' => $paidOrders,
+            'pendingCount' => $pendingCount,
             'inProgressCount' => $inProgressOrders,
             'todayPresent' => $todayPresent,
             'presentCount' => $todayPresent->count(),

@@ -25,7 +25,7 @@
 
         <div>
             <label for="salary" class="block text-sm font-medium text-graphite-900">Upah Harian (Rp)</label>
-            <input type="number" step="0.01" min="0" id="salary" name="salary" value="{{ old('salary', $pekerja->salary ?? '') }}" required
+            <input type="text" inputmode="numeric" id="salary" name="salary" value="{{ old('salary', isset($pekerja) && $pekerja->salary ? number_format((float) $pekerja->salary, 0, ',', '.') : '') }}" data-rupiah required
                    class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
             <p class="mt-1 text-xs text-graphite-500">Dipakai sebagai dasar perhitungan penggajian bulanan.</p>
         </div>

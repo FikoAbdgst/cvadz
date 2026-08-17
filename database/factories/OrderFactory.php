@@ -26,6 +26,7 @@ class OrderFactory extends Factory
             'quantity' => fake()->numberBetween(1, 5),
             'notes' => fake()->optional()->sentence(),
             'status' => fake()->randomElement(OrderStatus::cases()),
+            'payment_status' => 'belum',
         ];
     }
 }

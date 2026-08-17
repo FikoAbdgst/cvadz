@@ -3,24 +3,21 @@
 namespace App\Models;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use Database\Factories\OrderFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['customer_id', 'product_id', 'service_id', 'quantity', 'notes', 'status', 'admin_user_id', 'total', 'warranty_end_date'])]
+#[Fillable(['customer_id', 'product_id', 'service_id', 'quantity', 'notes', 'status', 'admin_user_id', 'total', 'warranty_end_date', 'payment_status', 'payment_amount', 'payment_type', 'payment_date', 'payment_proof'])]
 class Order extends Model
 {
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -28,6 +25,9 @@ class Order extends Model
             'status' => OrderStatus::class,
             'total' => 'decimal:2',
             'warranty_end_date' => 'date',
+            'payment_status' => PaymentStatus::class,
+            'payment_amount' => 'decimal:2',
+            'payment_date' => 'date',
         ];
     }
 
@@ -81,5 +81,20 @@ class Order extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function hasPayment(): bool
+    {
+        return $this->payment_status !== null && $this->payment_status !== PaymentStatus::BelumBayar;
+    }
+
+    public function proofUrl(): ?string
+    {
+        return $this->payment_proof ? Storage::disk('public')->url($this->payment_proof) : null;
+    }
+
+    public function paymentStatusLabel(): string
+    {
+        return $this->payment_status?->label() ?? 'Belum Bayar';
     }
 }

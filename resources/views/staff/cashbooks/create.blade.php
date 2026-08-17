@@ -31,7 +31,7 @@
                 <div class="grid gap-5 sm:grid-cols-2">
                     <div>
                         <label for="amount" class="block text-sm font-medium text-graphite-900">Jumlah (Rp)</label>
-                        <input type="number" step="0.01" min="1" id="amount" name="amount" value="{{ old('amount') }}" required
+                        <input type="text" inputmode="numeric" id="amount" name="amount" value="{{ old('amount') }}" data-rupiah required
                                class="mt-1 block w-full rounded-lg border border-line-200 px-3 py-2.5 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
                     </div>
                     <div>

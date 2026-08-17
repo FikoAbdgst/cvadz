@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use App\Enums\TransactionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
@@ -26,9 +26,10 @@ class SalesController extends Controller
         ];
 
         $search = $request->query('q');
-        $status = $request->query('status');
+        $paymentStatus = $request->query('payment_status');
         $customerId = $request->integer('customer');
         $orderId = $request->integer('order');
+        $status = $request->query('status');
 
         $customers = $orders = $transactions = null;
         $activeCustomer = $activeOrder = null;
@@ -45,7 +46,7 @@ class SalesController extends Controller
 
             $customers = $query->withCount('orders')->orderBy('name')->paginate(15)->withQueryString();
         } elseif ($tab === 'pemesanan') {
-            $query = Order::with(['customer', 'product', 'service'])
+            $query = Order::with(['customer', 'product', 'service', 'transactions'])
                 ->withCount('transactions')
                 ->withSum('transactions', 'amount');
 
@@ -53,8 +54,8 @@ class SalesController extends Controller
                 $query->where('customer_id', $customerId);
             }
 
-            if ($status) {
-                $query->where('status', $status);
+            if ($paymentStatus && in_array($paymentStatus, array_column(PaymentStatus::cases(), 'value'), true)) {
+                $query->where('payment_status', $paymentStatus);
             }
 
             $orders = $query->latest()->paginate(15)->withQueryString();
@@ -78,6 +79,7 @@ class SalesController extends Controller
             'tab' => $tab,
             'counts' => $counts,
             'search' => $search,
+            'paymentStatus' => $paymentStatus,
             'status' => $status,
             'customerId' => $customerId,
             'orderId' => $orderId,
@@ -86,7 +88,7 @@ class SalesController extends Controller
             'transactions' => $transactions,
             'activeCustomer' => $activeCustomer,
             'activeOrder' => $activeOrder,
-            'statuses' => OrderStatus::cases(),
+            'paymentStatuses' => PaymentStatus::cases(),
             'transactionStatuses' => TransactionStatus::cases(),
         ]);
     }

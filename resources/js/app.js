@@ -25,13 +25,36 @@ if (navToggle && navMobile) {
     });
 }
 
-const navShell = document.getElementById('nav-shell');
+const siteNav = document.getElementById('site-nav');
 
-if (navShell) {
+if (siteNav) {
+    const solidClasses = ['bg-steel-900/95', 'backdrop-blur', 'border-b', 'border-white/10'];
     const onScroll = () => {
-        navShell.classList.toggle('scrolled', window.scrollY > 20);
+        if (window.scrollY > 20) {
+            siteNav.classList.add(...solidClasses);
+            siteNav.classList.remove('border-transparent');
+        } else {
+            siteNav.classList.remove(...solidClasses);
+            siteNav.classList.add('border-transparent');
+        }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 }
+
+const rupiahInputs = document.querySelectorAll('[data-rupiah]');
+
+rupiahInputs.forEach((input) => {
+    const format = () => {
+        const digits = input.value.replace(/\D/g, '');
+        input.value = digits === '' ? '' : Number(digits).toLocaleString('id-ID');
+    };
+
+    input.addEventListener('input', format);
+    format();
+
+    input.form?.addEventListener('submit', () => {
+        input.value = input.value.replace(/\D/g, '');
+    });
+});

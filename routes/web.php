@@ -63,11 +63,10 @@ Route::prefix('staff')->name('staff.')->middleware(['auth', 'role:staff'])->grou
     Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/transaksi', [StaffTransactionController::class, 'index'])->name('transactions.index');
-    Route::get('/transaksi/create', [StaffTransactionController::class, 'create'])->name('transactions.create');
-    Route::post('/transaksi', [StaffTransactionController::class, 'store'])->name('transactions.store');
     Route::get('/transaksi/{transaksi}/edit', [StaffTransactionController::class, 'edit'])->name('transactions.edit');
     Route::put('/transaksi/{transaksi}', [StaffTransactionController::class, 'update'])->name('transactions.update');
     Route::delete('/transaksi/{transaksi}', [StaffTransactionController::class, 'destroy'])->name('transactions.destroy');
+    Route::post('/transaksi/{transaksi}/verifikasi', [StaffTransactionController::class, 'verify'])->name('transactions.verify');
     Route::get('/transaksi/{transaksi}/invoice', [StaffTransactionController::class, 'invoice'])->name('transactions.invoice');
 
     Route::get('/kas/create', [StaffCashbookController::class, 'create'])->name('cashbooks.create');
