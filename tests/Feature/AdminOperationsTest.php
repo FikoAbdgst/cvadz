@@ -9,6 +9,7 @@ use App\Models\Payroll;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Worker;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -104,21 +105,25 @@ class AdminOperationsTest extends TestCase
         $this->actingAs($this->admin());
         $worker = Worker::create(['name' => 'Dedi Kurniawan', 'position' => 'Kepala Bengkel', 'phone' => '0812', 'salary' => 150000]);
 
+        $monday = Carbon::now()->startOfWeek(Carbon::MONDAY)->toDateString();
+        $tuesday = Carbon::now()->startOfWeek(Carbon::MONDAY)->addDay()->toDateString();
+        $wednesday = Carbon::now()->startOfWeek(Carbon::MONDAY)->addDays(2)->toDateString();
+
         Attendance::create([
             'worker_id' => $worker->id,
-            'date' => now()->toDateString(),
+            'date' => $tuesday,
             'check_in' => '08:00:00',
             'check_out' => '16:30:00',
         ]);
 
         Attendance::create([
             'worker_id' => $worker->id,
-            'date' => now()->subDay()->toDateString(),
+            'date' => $wednesday,
             'check_in' => '08:00:00',
             'check_out' => '16:30:00',
         ]);
 
-        $period = now()->format('Y-m');
+        $period = $monday;
 
         $this->post(route('admin.payrolls.generate'), ['period' => $period])
             ->assertRedirect(route('admin.payrolls.index', ['period' => $period]));
@@ -150,7 +155,7 @@ class AdminOperationsTest extends TestCase
 
         $draft = Payroll::create([
             'worker_id' => $worker->id,
-            'period' => now()->format('Y-m'),
+            'period' => now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d'),
             'total_days' => 1,
             'salary_amount' => 150000,
             'status' => 'draft',
@@ -163,7 +168,7 @@ class AdminOperationsTest extends TestCase
 
         $approved = Payroll::create([
             'worker_id' => $worker->id,
-            'period' => now()->subMonth()->format('Y-m'),
+            'period' => now()->subWeek()->startOfWeek(Carbon::MONDAY)->format('Y-m-d'),
             'total_days' => 1,
             'salary_amount' => 150000,
             'status' => 'approved',

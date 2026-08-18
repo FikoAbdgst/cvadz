@@ -10,20 +10,35 @@
             <select id="period" name="period" onchange="this.form.submit()"
                     class="rounded-lg border border-line-200 px-3 py-2 text-sm focus:border-steel-700 focus:outline-none focus:ring-2 focus:ring-steel-700/20">
                 @forelse ($periods as $available)
-                    <option value="{{ $available }}" @selected($available === $period)>{{ \Carbon\Carbon::parse($available.'-01')->translatedFormat('F Y') }}</option>
+                    @php
+                        $weekStart = \Carbon\Carbon::parse($available);
+                        $weekEnd = $weekStart->copy()->addDays(5);
+                        $isCurrentWeek = $available === $currentMonday;
+                    @endphp
+                    <option value="{{ $available }}" @selected($available === $period)>{{ $weekStart->translatedFormat('d M').' – '.$weekEnd->translatedFormat('d M Y') }}{{ $isCurrentWeek ? ' (Minggu Ini)' : '' }}</option>
                 @empty
                     <option value="{{ $period }}">{{ $periodLabel }}</option>
                 @endforelse
             </select>
         </form>
 
-        <form method="POST" action="{{ route('admin.payrolls.generate') }}">
-            @csrf
-            <input type="hidden" name="period" value="{{ $period }}">
-            <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700">
-                Buat Penggajian {{ $periodLabel }}
-            </button>
-        </form>
+        @if ($period === $currentMonday && ! $currentWeekHasPayroll)
+            <form method="POST" action="{{ route('admin.payrolls.generate') }}">
+                @csrf
+                <input type="hidden" name="period" value="{{ $period }}">
+                <button type="submit" class="rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700">
+                    Generate Penggajian Minggu Ini
+                </button>
+            </form>
+        @elseif ($period !== $currentMonday && $payrolls->isEmpty())
+            <form method="POST" action="{{ route('admin.payrolls.generate') }}">
+                @csrf
+                <input type="hidden" name="period" value="{{ $period }}">
+                <button type="submit" class="rounded-lg border border-amber-600 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50">
+                    Generate Periode Ini
+                </button>
+            </form>
+        @endif
     </div>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-3">
@@ -52,7 +67,11 @@
             <span class="plate-corner-bl"></span>
             <span class="plate-corner-br"></span>
             <p class="font-display text-lg font-semibold text-graphite-900">Belum ada penggajian untuk {{ $periodLabel }}</p>
-            <p class="mt-2 text-sm text-graphite-500">Klik "Buat Penggajian" untuk menghitung otomatis dari data absensi pekerja.</p>
+            @if ($period === $currentMonday)
+                <p class="mt-2 text-sm text-graphite-500">Klik "Generate Penggajian Minggu Ini" untuk menghitung otomatis dari data absensi pekerja.</p>
+            @else
+                <p class="mt-2 text-sm text-graphite-500">Klik "Generate Periode Ini" untuk membuat penggajian dari data absensi periode ini.</p>
+            @endif
         </div>
     @else
         <div class="plate rounded bg-white">
@@ -100,6 +119,7 @@
                                 </td>
                                 <td class="px-4 py-3 lg:px-6">
                                     <div class="flex justify-end gap-2">
+                                        <a href="{{ route('admin.payrolls.slip', $payroll) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Slip</a>
                                         @if ($payroll->status === 'draft')
                                             <a href="{{ route('admin.payrolls.edit', $payroll) }}" class="rounded-lg border border-line-200 px-3 py-1.5 text-xs font-medium text-graphite-500 transition hover:text-steel-700">Edit</a>
                                             <form method="POST" action="{{ route('admin.payrolls.approve', $payroll) }}" onsubmit="return submitConfirm(this, 'Approve gaji ini? Pengeluaran akan otomatis dicatat ke kas.')">

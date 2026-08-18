@@ -280,11 +280,15 @@
         </div>
 
         @forelse ($payrollsByPeriod as $period => $rows)
+            @php
+                $weekStart = \Carbon\Carbon::parse($period);
+                $weekEnd = $weekStart->copy()->addDays(5);
+            @endphp
             <div class="plate mt-6 rounded bg-white">
                 <span class="plate-corner-bl"></span>
                 <span class="plate-corner-br"></span>
                 <div class="border-b border-line-200 px-6 py-4">
-                    <p class="font-display text-sm font-semibold text-graphite-900">{{ \Carbon\Carbon::parse($period.'-01')->translatedFormat('F Y') }}</p>
+                    <p class="font-display text-sm font-semibold text-graphite-900">{{ $weekStart->translatedFormat('d M').' – '.$weekEnd->translatedFormat('d M Y') }}</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">

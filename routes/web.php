@@ -57,6 +57,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/penggajian/generate', [PayrollController::class, 'generate'])->name('payrolls.generate');
     Route::get('/penggajian/{payroll}/edit', [PayrollController::class, 'edit'])->name('payrolls.edit');
     Route::put('/penggajian/{payroll}', [PayrollController::class, 'update'])->name('payrolls.update');
+    Route::get('/penggajian/{payroll}/slip', [PayrollController::class, 'slip'])->name('payrolls.slip');
+    Route::get('/penggajian/{payroll}/slip/pdf', [PayrollController::class, 'downloadSlip'])->name('payrolls.slip-pdf');
     Route::post('/penggajian/{payroll}/approve', [PayrollController::class, 'approve'])->name('payrolls.approve');
     Route::delete('/penggajian/{payroll}', [PayrollController::class, 'destroy'])->name('payrolls.destroy');
 });

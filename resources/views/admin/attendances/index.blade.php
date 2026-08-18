@@ -50,36 +50,44 @@
             <p class="mt-2 text-sm text-graphite-500">Pilih bulan lain atau tambahkan absensi di area kerja.</p>
         </div>
     @else
-        @foreach ($attendances as $date => $rows)
-            <div class="plate mb-6 rounded bg-white">
-                <span class="plate-corner-bl"></span>
-                <span class="plate-corner-br"></span>
-                <div class="border-b border-line-200 px-6 py-4">
-                    <p class="font-display text-sm font-semibold text-graphite-900">{{ $date }}</p>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead>
-                            <tr class="border-b border-line-200 text-xs uppercase tracking-wider text-graphite-500">
-                                <th class="px-6 py-3">Pekerja</th>
-                                <th class="px-6 py-3">Posisi</th>
-                                <th class="px-6 py-3">Check-in</th>
-                                <th class="px-6 py-3">Check-out</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($rows as $attendance)
-                                <tr class="border-b border-line-200/60">
-                                    <td class="px-6 py-3 font-medium text-graphite-900">{{ $attendance->worker->name }}</td>
-                                    <td class="px-6 py-3 text-graphite-500">{{ $attendance->worker->position }}</td>
-                                    <td class="px-6 py-3 text-graphite-500">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '—' }}</td>
-                                    <td class="px-6 py-3 text-graphite-500">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '—' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endforeach
+        <div class="space-y-3">
+            @foreach ($attendances as $date => $rows)
+                <details class="group rounded border border-line-200 bg-white">
+                    <summary class="flex cursor-pointer items-center justify-between px-6 py-4 select-none transition hover:bg-paper-100">
+                        <div class="flex items-center gap-3">
+                            <span class="font-display text-sm font-semibold text-graphite-900">{{ $date }}</span>
+                            <span class="rounded bg-steel-100 px-2 py-0.5 font-mono text-xs font-semibold text-steel-700">{{ $rows->count() }} pekerja</span>
+                        </div>
+                        <svg class="h-4 w-4 text-graphite-500 transition duration-200 group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </summary>
+                    <div class="border-t border-line-200">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead>
+                                    <tr class="text-xs uppercase tracking-wider text-graphite-500">
+                                        <th class="px-6 py-3">Pekerja</th>
+                                        <th class="px-6 py-3">Posisi</th>
+                                        <th class="px-6 py-3">Check-in</th>
+                                        <th class="px-6 py-3">Check-out</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($rows as $attendance)
+                                        <tr class="border-t border-line-200/60">
+                                            <td class="px-6 py-3 font-medium text-graphite-900">{{ $attendance->worker->name }}</td>
+                                            <td class="px-6 py-3 text-graphite-500">{{ $attendance->worker->position }}</td>
+                                            <td class="px-6 py-3 text-graphite-500">{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '—' }}</td>
+                                            <td class="px-6 py-3 text-graphite-500">{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '—' }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </details>
+            @endforeach
+        </div>
     @endif
 @endsection

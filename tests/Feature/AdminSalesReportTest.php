@@ -13,6 +13,7 @@ use App\Models\Service;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Worker;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -198,7 +199,7 @@ class AdminSalesReportTest extends TestCase
         $worker = Worker::create(['name' => 'Dedi Kurniawan', 'position' => 'Kepala Bengkel', 'phone' => '0812', 'salary' => 150000]);
         Payroll::create([
             'worker_id' => $worker->id,
-            'period' => now()->format('Y-m'),
+            'period' => now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d'),
             'total_days' => 3,
             'salary_amount' => 450000,
             'status' => 'draft',

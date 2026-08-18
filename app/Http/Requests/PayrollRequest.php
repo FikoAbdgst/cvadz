@@ -23,7 +23,7 @@ class PayrollRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'period' => ['required', 'date_format:Y-m'],
+            'period' => ['required', 'date_format:Y-m-d'],
             'bonus' => ['nullable', 'numeric', 'min:0'],
             'lemburan' => ['nullable', 'numeric', 'min:0'],
             'uang_luar_kota' => ['nullable', 'numeric', 'min:0'],
@@ -40,7 +40,7 @@ class PayrollRequest extends FormRequest
     {
         return [
             'period.required' => 'Periode wajib dipilih.',
-            'period.date_format' => 'Format periode tidak valid.',
+            'period.date_format' => 'Format periode tidak valid (gunakan YYYY-MM-DD).',
             'bonus.numeric' => 'Bonus harus berupa angka.',
             'lemburan.numeric' => 'Lemburan harus berupa angka.',
             'uang_luar_kota.numeric' => 'Uang luar kota harus berupa angka.',

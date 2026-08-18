@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Cashbook;
 use App\Models\Payroll;
 use App\Models\Worker;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,14 +19,17 @@ class PayrollController extends Controller
 {
     public function index(Request $request): View
     {
-        $period = $request->input('period', now()->format('Y-m'));
+        $period = $request->input('period', now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d'));
 
         try {
-            $periodStart = Carbon::createFromFormat('Y-m', $period)->startOfMonth();
+            $periodStart = Carbon::parse($period)->startOfWeek(Carbon::MONDAY);
         } catch (\Throwable) {
-            $period = now()->format('Y-m');
-            $periodStart = now()->startOfMonth();
+            $period = now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+            $periodStart = now()->startOfWeek(Carbon::MONDAY);
         }
+
+        $periodEnd = $periodStart->copy()->addDays(5);
+        $currentMonday = now()->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
 
         $payrolls = Payroll::with('worker', 'approver')
             ->where('period', $period)
@@ -34,30 +38,33 @@ class PayrollController extends Controller
             ->get();
 
         $periods = Payroll::distinct()->pluck('period')
-            ->merge(Attendance::query()->pluck('date')->map(fn ($date) => Carbon::parse($date)->format('Y-m')))
+            ->merge(Attendance::query()->pluck('date')->map(fn ($date) => Carbon::parse($date)->startOfWeek(Carbon::MONDAY)->format('Y-m-d')))
             ->unique()
             ->sortDesc()
             ->values();
 
         $approvalCount = $payrolls->where('status', 'approved')->count();
         $approvedAmount = $payrolls->where('status', 'approved')->sum(fn ($p) => $p->net_salary);
+        $currentWeekHasPayroll = Payroll::where('period', $currentMonday)->exists();
 
         return view('admin.payrolls.index', [
             'payrolls' => $payrolls,
             'period' => $period,
-            'periodLabel' => $periodStart->translatedFormat('F Y'),
+            'periodLabel' => $periodStart->translatedFormat('d M').' – '.$periodEnd->translatedFormat('d M Y'),
             'periods' => $periods,
             'approvalCount' => $approvalCount,
             'approvedAmount' => $approvedAmount,
             'workerCount' => Worker::whereNotNull('salary')->count(),
+            'currentMonday' => $currentMonday,
+            'currentWeekHasPayroll' => $currentWeekHasPayroll,
         ]);
     }
 
     public function generate(PayrollRequest $request): RedirectResponse
     {
         $period = $request->period;
-        $start = Carbon::createFromFormat('Y-m', $period)->startOfMonth()->toDateString();
-        $end = Carbon::createFromFormat('Y-m', $period)->endOfMonth()->toDateString();
+        $start = Carbon::parse($period)->startOfWeek(Carbon::MONDAY)->toDateString();
+        $end = Carbon::parse($period)->startOfWeek(Carbon::MONDAY)->addDays(5)->toDateString();
 
         $workers = Worker::withCount([
             'attendances as days_present' => function ($query) use ($start, $end) {
@@ -89,8 +96,10 @@ class PayrollController extends Controller
             }
         });
 
+        $periodStart = Carbon::parse($period);
+        $periodLabel = $periodStart->translatedFormat('d M').' – '.$periodStart->copy()->addDays(5)->translatedFormat('d M Y');
         $message = $created > 0
-            ? "Penggajian periode $period dibuat untuk $created pekerja (draft)."
+            ? "Penggajian periode $periodLabel dibuat untuk $created pekerja (draft)."
             : 'Tidak ada data baru — semua pekerja sudah dibuatkan atau belum punya upah harian.';
 
         return redirect()->route('admin.payrolls.index', ['period' => $period])
@@ -117,6 +126,27 @@ class PayrollController extends Controller
 
         return redirect()->route('admin.payrolls.index', ['period' => $payroll->period])
             ->with('success', 'Komponen gaji berhasil diperbarui.');
+    }
+
+    public function slip(Payroll $payroll): View
+    {
+        $payroll->load(['worker', 'approver']);
+
+        return view('admin.payrolls.slip', [
+            'payroll' => $payroll,
+        ]);
+    }
+
+    public function downloadSlip(Payroll $payroll)
+    {
+        $payroll->load(['worker', 'approver']);
+
+        $pdf = Pdf::loadView('admin.payrolls._slip-print', ['payroll' => $payroll])
+            ->setPaper('a4', 'portrait');
+
+        $workerName = str_replace(' ', '-', strtolower($payroll->worker->name));
+
+        return $pdf->stream("slip-gaji-{$workerName}-{$payroll->period}.pdf");
     }
 
     public function approve(Payroll $payroll): RedirectResponse

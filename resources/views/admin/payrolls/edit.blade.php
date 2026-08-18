@@ -35,7 +35,7 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-graphite-500">Periode</span>
-                    <span class="text-graphite-900">{{ \Carbon\Carbon::parse($payroll->period.'-01')->translatedFormat('F Y') }}</span>
+                    <span class="text-graphite-900">{{ \Carbon\Carbon::parse($payroll->period)->translatedFormat('d M').' – '.\Carbon\Carbon::parse($payroll->period)->addDays(5)->translatedFormat('d M Y') }}</span>
                 </div>
                 <div class="border-t border-line-200 pt-3 flex justify-between">
                     <span class="text-graphite-500">Hari Kerja</span>
