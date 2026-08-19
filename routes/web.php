@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\AttendanceController;
 use App\Http\Controllers\Admin\CashbookController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarrantyController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
@@ -30,7 +32,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/produk', [ProductController::class, 'index'])->name('products.index');
 Route::get('/produk/{slug}', [ProductController::class, 'show'])->name('products.show');
 Route::get('/layanan', [ServiceController::class, 'index'])->name('services.index');
-Route::view('/tentang', 'about')->name('about');
+Route::get('/klien-agen', [ClientController::class, 'index'])->name('clients.index');
+Route::get('/tentang', [AboutController::class, 'index'])->name('about');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');

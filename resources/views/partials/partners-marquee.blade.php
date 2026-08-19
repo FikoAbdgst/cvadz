@@ -1,14 +1,7 @@
 @php
-    // TODO: ganti dengan logo/nama mitra asli.
-    $partners = [
-        'PT Briket Nusantara',
-        'CV Sumber Kayu Makmur',
-        'PT Agro Pelet Sejahtera',
-        'CV Mitra Biomassa',
-        'UD Sekar Kayu',
-        'PT Energi Hijau Lestari',
-    ];
-    $loop = array_merge($partners, $partners);
+    $items = $partners ?? [];
+    $loopItems = array_merge($items, $items);
+    $duration = max(36, count($items) * 4);
 @endphp
 
 <section class="border-b border-line-200 bg-white py-8 sm:py-10">
@@ -21,7 +14,7 @@
     <div
         class="relative mt-5 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
         <div class="marquee-track flex w-max items-center gap-8">
-            @foreach ($loop as $partner)
+            @foreach ($loopItems as $partner)
                 <span class="shrink-0 font-mono text-sm font-medium uppercase tracking-wide text-graphite-500/70">
                     {{ $partner }}
                 </span>
@@ -32,7 +25,7 @@
 
 <style>
     .marquee-track {
-        animation: marquee-scroll 36s linear infinite;
+        animation: marquee-scroll {{ $duration }}s linear infinite;
     }
 
     .marquee-track:hover {

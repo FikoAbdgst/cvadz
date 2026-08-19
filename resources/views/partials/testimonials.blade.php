@@ -1,36 +1,5 @@
 @php
-    $testimonials = [
-        [
-            'name' => 'Yusuf Hidayat',
-            'role' => 'Kepala Produksi, PT Briket Nusantara',
-            'quote' => 'Rotary dryer-nya jalan 24 jam tanpa masalah. Kapasitas produksi kami naik hampir dua kali lipat.',
-        ],
-        [
-            'name' => 'Dedi Kurniawan',
-            'role' => 'Pemilik, CV Sumber Kayu Makmur',
-            'quote' => 'Mesin dibuat sesuai spek yang kami minta, bukan barang jadi dari katalog. Tim juga bantu setting awal.',
-        ],
-        [
-            'name' => 'Ratna Sari Dewi',
-            'role' => 'Manajer Operasional, PT Agro Pelet Sejahtera',
-            'quote' => 'Layanan purna jualnya cepat. Ada kendala kecil sebulan setelah instalasi, teknisi langsung datang.',
-        ],
-        [
-            'name' => 'Bambang Setiawan',
-            'role' => 'Pemilik, CV Mitra Biomassa',
-            'quote' => 'Fabrikasi rapi, sesuai jadwal. Komunikasi dengan tim lancar dari awal hingga mesin terpasang.',
-        ],
-        [
-            'name' => 'Wulan Anggraini',
-            'role' => 'Manager, UD Sekar Kayu',
-            'quote' => 'Konsultasi awal sangat membantu menentukan spek mesin. Hasil akhirnya sesuai ekspektasi.',
-        ],
-        [
-            'name' => 'Agus Prasetyo',
-            'role' => 'Direktur, PT Energi Hijau Lestari',
-            'quote' => 'Kualitas las dan material kokoh. Sudah setahun berjalan tanpa perbaikan besar.',
-        ],
-    ];
+    $items = $testimonials ?? collect();
 @endphp
 
 <section class="bg-white py-16 sm:py-24">
@@ -45,7 +14,7 @@
         <div id="testimonial-track"
             class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:gap-6 sm:px-6 lg:px-8"
             style="scroll-behavior: smooth;">
-            @foreach ($testimonials as $t)
+            @foreach ($items as $t)
                 <article
                     class="w-[85vw] shrink-0 snap-start rounded border border-line-200 bg-paper-100 p-6 sm:w-[calc((100%-3rem)/3)] sm:p-8">
                     <span class="font-display text-4xl leading-none text-amber-600/40">&ldquo;</span>
@@ -53,8 +22,8 @@
                         {{ $t['quote'] }}
                     </p>
                     <div class="mt-6 border-t border-line-200 pt-4">
-                        <p class="font-display text-sm font-semibold text-graphite-900">{{ $t['name'] }}</p>
-                        <p class="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-graphite-500">{{ $t['role'] }}</p>
+                        <p class="font-display text-sm font-semibold text-graphite-900">{{ $t['company'] }}</p>
+                        <p class="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-graphite-500">{{ $t['location'] }}</p>
                     </div>
                 </article>
             @endforeach

@@ -19,9 +19,9 @@
                     <h1 class="hero-anim hero-anim-delay-2 mt-5 font-display text-3xl font-bold leading-tight sm:text-5xl">
                         Fabrikasi Mesin Industri, Sesuai Spesifikasi Anda
                     </h1>
-                    <p class="hero-anim hero-anim-delay-3 mt-4 max-w-md text-sm leading-relaxed text-steel-400 sm:text-base">
-                        Rotary dryer dan mesin cetak pelet — dirancang serta dibuat langsung oleh tim kami di
-                        Bandung.
+                    <p
+                        class="hero-anim hero-anim-delay-3 mt-4 max-w-md text-sm leading-relaxed text-steel-400 sm:text-base">
+                        Rotary dryer dan mesin cetak pelet — dirancang serta dibuat langsung oleh tim kami.
                     </p>
 
                     <div class="hero-anim hero-anim-delay-4 mt-8 flex flex-col gap-3 sm:flex-row">
@@ -45,23 +45,23 @@
                             $heroSlides = [
                                 [
                                     'src' => 'rotari.jpeg',
-                                    'label' => 'Gbr. 01',
-                                    'caption' => 'Rotary Dryer — Workshop Bandung',
+                                    'label' => 'Rotary Dryer',
+                                    'caption' => 'Workshop Bandung',
                                 ],
                                 [
                                     'src' => 'WoodPelet.jpeg',
-                                    'label' => 'Gbr. 02',
-                                    'caption' => 'Mesin Wood Pelet — Produksi Lokal',
+                                    'label' => 'Mesin Wood Pelet',
+                                    'caption' => 'Produksi Lokal',
                                 ],
                                 [
                                     'src' => 'hammermil.jpeg',
-                                    'label' => 'Gbr. 03',
-                                    'caption' => 'Hammer Mill — Fabrikasi CV Adzra',
+                                    'label' => 'Hammer Mill',
+                                    'caption' => 'Fabrikasi CV Adzra',
                                 ],
                                 [
                                     'src' => 'testbattery.jpeg',
-                                    'label' => 'Gbr. 04',
-                                    'caption' => 'Battery Test — Quality Control',
+                                    'label' => 'Battery Test',
+                                    'caption' => 'Quality Control',
                                 ],
                             ];
                         @endphp
@@ -108,19 +108,6 @@
             </div>
         </div>
 
-        {{-- strip statistik full-width --}}
-        <div class="hero-anim hero-anim-delay-5 border-t border-white/10">
-            <div class="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-white/10 px-4 sm:px-6 lg:px-8">
-                <div class="py-5 text-center sm:py-6 sm:text-left">
-                    <p class="font-mono text-[10px] uppercase tracking-widest text-steel-400 sm:text-xs">Berdiri</p>
-                    <p class="mt-1 font-display text-lg font-bold sm:text-2xl">2015</p>
-                </div>
-
-                <div class="py-5 text-center sm:py-6 sm:text-left">
-                    <p class="font-mono text-[10px] uppercase tracking-widest text-steel-400 sm:text-xs">Basis</p>
-                    <p class="mt-1 font-display text-lg font-bold sm:text-2xl">Bandung</p>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -208,10 +195,13 @@
                                     <div class="skeleton absolute inset-0"></div>
                                 @else
                                     <div class="img-placeholder h-full w-full">
-                                        <svg class="h-8 w-8 text-graphite-500/40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V5.25a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v14.25a1.5 1.5 0 001.5 1.5z"/>
+                                        <svg class="h-8 w-8 text-graphite-500/40" fill="none" stroke="currentColor"
+                                            stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V5.25a1.5 1.5 0 00-1.5-1.5H3.75a1.5 1.5 0 00-1.5 1.5v14.25a1.5 1.5 0 001.5 1.5z" />
                                         </svg>
-                                        <span class="font-mono text-[10px] uppercase tracking-widest text-graphite-500/60">{{ $product->category?->name ?? 'Produk' }}</span>
+                                        <span
+                                            class="font-mono text-[10px] uppercase tracking-widest text-graphite-500/60">{{ $product->category?->name ?? 'Produk' }}</span>
                                     </div>
                                 @endif
                             </div>
@@ -262,7 +252,8 @@
             @else
                 <div class="mt-10">
                     @foreach ($services as $service)
-                        <div class="group anim anim-fade-up anim-delay-{{ min($loop->iteration, 4) }} relative flex items-start gap-6 pb-10 last:pb-0">
+                        <div
+                            class="group anim anim-fade-up anim-delay-{{ min($loop->iteration, 4) }} relative flex items-start gap-6 pb-10 last:pb-0">
                             {{-- garis penghubung vertikal --}}
                             @if (!$loop->last)
                                 <div class="absolute left-5 top-12 bottom-0 w-px bg-line-200"></div>
@@ -348,20 +339,20 @@
             if (!slides.length || !dots.length) return;
 
             const data = [{
-                    label: 'Gbr. 01',
-                    caption: 'Rotary Dryer — Workshop Bandung'
+                    label: 'Rotary Dryer',
+                    caption: 'Workshop Bandung'
                 },
                 {
-                    label: 'Gbr. 02',
-                    caption: 'Mesin Wood Pelet — Produksi Lokal'
+                    label: 'Mesin Wood Pelet',
+                    caption: 'Produksi Lokal'
                 },
                 {
-                    label: 'Gbr. 03',
-                    caption: 'Hammer Mill — Fabrikasi CV Adzra'
+                    label: 'Hammer Mill',
+                    caption: 'Fabrikasi CV Adzra'
                 },
                 {
-                    label: 'Gbr. 04',
-                    caption: 'Battery Test — Quality Control'
+                    label: 'Battery Test',
+                    caption: 'Quality Control'
                 },
             ];
             let current = 0;

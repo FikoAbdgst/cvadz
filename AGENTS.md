@@ -4,7 +4,7 @@ Sales website (Laravel 13) for CV Adzra Engineering Bandung (industrial machine 
 
 ## Hard constraints (do not violate)
 
-- **Pure Laravel 13 / PHP 8.3+.** Never install Breeze/Jetstream/Fortify or any starter kit — auth is manual (`AuthController` + `Auth::attempt`, routes `/login`, `/logout`).
+- **Pure Laravel 13 / PHP 8.4.** Never install Breeze/Jetstream/Fortify or any starter kit — auth is manual (`AuthController` + `Auth::attempt`, routes `/login`, `/logout`).
 - **No JS framework** (no Alpine/Vue/React/Livewire). Frontend interactivity is vanilla JS only. Tailwind CSS v4 via `@tailwindcss/vite`.
 - **WhatsApp is just `https://wa.me/<number>?text=<urlencoded msg>` links.** Number comes from `config('services.whatsapp.number')` = `WA_NUMBER` in `.env` (currently `6282263028951` = +62 822-6302-8951). Build messages with `App\Support\WhatsApp::link()` / `Product::whatsappMessage()`.
 - **No public register page.** Admin account from `AdminSeeder` (`admin@cvadz.com` / `admin123`).

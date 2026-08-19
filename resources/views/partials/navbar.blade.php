@@ -3,6 +3,7 @@
         ['route' => 'home',          'label' => 'Beranda'],
         ['route' => 'products.index','label' => 'Produk'],
         ['route' => 'services.index','label' => 'Layanan'],
+        ['route' => 'clients.index', 'label' => 'Klien & Agen'],
         ['route' => 'about',         'label' => 'Tentang Kami'],
     ];
 @endphp
