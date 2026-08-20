@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['worker_id', 'period', 'total_days', 'salary_amount', 'bonus', 'lemburan', 'uang_luar_kota', 'kasbon', 'status', 'approved_by', 'approved_at'])]
 class Payroll extends Model
 {
+    protected $fillable = ['worker_id', 'period', 'total_days', 'salary_amount', 'bonus', 'lemburan', 'uang_luar_kota', 'kasbon', 'status', 'approved_by', 'approved_at'];
+
     /**
      * Get the attributes that should be cast.
      *

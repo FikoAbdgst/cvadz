@@ -5,18 +5,18 @@ namespace App\Models;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use Database\Factories\OrderFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['customer_id', 'product_id', 'service_id', 'quantity', 'notes', 'status', 'admin_user_id', 'total', 'warranty_end_date', 'payment_status', 'payment_amount', 'payment_type', 'payment_date', 'payment_proof'])]
 class Order extends Model
 {
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
+
+    protected $fillable = ['customer_id', 'product_id', 'service_id', 'quantity', 'notes', 'status', 'admin_user_id', 'total', 'warranty_end_date', 'payment_status', 'payment_amount', 'payment_type', 'payment_date', 'payment_proof'];
 
     protected function casts(): array
     {

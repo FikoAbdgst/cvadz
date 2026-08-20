@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['type', 'amount', 'description', 'transaction_date', 'user_id', 'transaction_id'])]
 class Cashbook extends Model
 {
+    protected $fillable = ['type', 'amount', 'description', 'transaction_date', 'user_id', 'transaction_id'];
+
     /**
      * Get the attributes that should be cast.
      *

@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['name', 'slug', 'description', 'price', 'is_featured', 'category_id'])]
 class Service extends Model
 {
+    protected $fillable = ['name', 'slug', 'description', 'price', 'is_featured', 'category_id'];
+
     /**
      * Get the attributes that should be cast.
      *

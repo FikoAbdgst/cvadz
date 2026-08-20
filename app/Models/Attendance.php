@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['worker_id', 'date', 'check_in', 'check_out'])]
 class Attendance extends Model
 {
+    protected $fillable = ['worker_id', 'date', 'check_in', 'check_out'];
+
     /**
      * Get the attributes that should be cast.
      *

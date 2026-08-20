@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['product_id', 'image_path', 'is_primary'])]
 class ProductImage extends Model
 {
+    protected $fillable = ['product_id', 'image_path', 'is_primary'];
+
     /**
      * Get the attributes that should be cast.
      *

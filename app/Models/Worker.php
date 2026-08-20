@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'position', 'phone', 'salary'])]
 class Worker extends Model
 {
+    protected $fillable = ['name', 'position', 'phone', 'salary'];
+
     /**
      * Get the attributes that should be cast.
      *

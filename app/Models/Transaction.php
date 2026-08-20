@@ -4,16 +4,16 @@ namespace App\Models;
 
 use App\Enums\TransactionStatus;
 use Database\Factories\TransactionFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['order_id', 'staff_user_id', 'amount', 'payment_type', 'transaction_date', 'status'])]
 class Transaction extends Model
 {
     /** @use HasFactory<TransactionFactory> */
     use HasFactory;
+
+    protected $fillable = ['order_id', 'staff_user_id', 'amount', 'payment_type', 'transaction_date', 'status'];
 
     /**
      * Get the attributes that should be cast.
